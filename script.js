@@ -510,9 +510,15 @@ function addToCart(productId) {
 }
 
 function toggleMenu() {
-    const navbar = document.querySelector('.side-nav'); // Nuqta qo'yishni unutmang!
+    // Nuqta qo'yishni unutmang, bu klass ekanligini bildiradi
+    const navbar = document.querySelector('.side-nav'); 
+    
     if (navbar) {
         navbar.classList.toggle('active');
-        console.log("Menyu holati o'zgardi!");
+        console.log("Menyu holati o'zgardi");
+    } else {
+        // Agar xato bo'lsa, konsolda ko'rinadi
+        console.error("Xato: .side-nav topilmadi!");
     }
 }
+

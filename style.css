@@ -1390,25 +1390,32 @@ input:checked + .slider:before { transform: translateX(22px); }
 }
 
 /* Telefonlar uchun maxsus qism */
-@media screen and (max-width: 768px) {
-    /* 1. Navigatsiya paneli dastlab chapda yashirin bo'lsin */
-    .side-nav {
-        display: block !important; /* Doim blok holatda bo'lsin */
-        position: fixed !important;
-        left: -280px; /* Ekran tashqarisiga chiqarish */
-        top: 0;
-        width: 260px;
-        height: 100vh;
-        background: white;
-        z-index: 9999;
-        transition: all 0.3s ease-in-out;
-        box-shadow: 5px 0 15px rgba(0,0,0,0.1);
-    }
+/* Mobil menyu tugmasi dizayni */
+.mobile-menu-btn {
+    display: none; /* Kompyuterda ko'rinmaydi */
+}
 
-    /* 2. .active klassi qo'shilsa ekran ichiga kirsin */
-    .side-nav.active {
-        left: 0 !important;
+@media (max-width: 768px) {
+    .menu-toggle-btn {
+        position: absolute; /* Fixed emas, header ichida qoladi */
+        top: 10px;
+        left: 10px;
+        z-index: 1001; /* Qidiruv maydonidan baland, lekin sidebar-dan past */
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: #00b894; /* Yashil rang */
+        color: white;
     }
+    
+    /* Qidiruv maydoni tugmaga urilmasligi uchun chapdan joy ochamiz */
+    .search-container {
+        margin-left: 60px !important;
+    }
+}
 
     /* 3. Mobil tugma (Gamburger) doim ko'rinib tursin */
     .mobile-nav-toggle {
@@ -1428,27 +1435,27 @@ input:checked + .slider:before { transform: translateX(22px); }
         z-index: 10000;
         box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
-}
+
 
 @media (max-width: 768px) {
-    /* 1. Chapdagi asosiy menyuni yashirin qilish */
     .side-nav {
-        display: block !important;
-        position: fixed;
-        left: -100%; /* Chapda yashirin */
+        display: block !important; /* Yashirmaslik kerak, faqat surish kerak */
+        position: fixed !important;
+        left: -100% !important; /* Ekran chapida yashirin */
         top: 0;
-        width: 280px;
-        height: 100%;
-        background: #fff;
-        z-index: 10001;
-        transition: 0.4s ease;
-        box-shadow: 10px 0 20px rgba(0,0,0,0.1);
+        width: 280px !important;
+        height: 100vh !important;
+        background: #fff !important;
+        z-index: 99999 !important;
+        transition: 0.4s ease-in-out;
+        box-shadow: 10px 0 20px rgba(0,0,0,0.2);
     }
 
-    /* 2. Menyu ochilganda */
+    /* Active klassi qo'shilganda ekranga chiqadi */
     .side-nav.active {
-        left: 0;
+        left: 0 !important;
     }
+}
 
     /* 3. Pastki menyu dizayni */
     .bottom-nav {
@@ -1477,5 +1484,113 @@ input:checked + .slider:before { transform: translateX(22px); }
 
     .nav-item-mobile i {
         font-size: 20px;
+    }
+
+
+    @media screen and (max-width: 768px) {
+    /* FAQAT MOBILDA KO'RINADIGANLAR */
+    .bottom-nav {
+        display: flex !important; /* Pastki panel mobilga qaytadi */
+    }
+
+    .menu-toggle-btn {
+        display: flex !important; /* Yashil tugma mobilga qaytadi */
+    }
+
+    .sidebar {
+        position: fixed !important;
+        left: -100% !important; /* Kompyuterdagi sidebar mobil ekranda yashirinadi */
+        width: 260px !important;
+        z-index: 10001;
+    }
+
+    .sidebar.active {
+        left: 0 !important; /* Faqat tugma bosilganda chiqadi */
+    }
+}
+
+@media screen and (min-width: 769px) {
+    /* KOMPYUTERDA SIDEBAR HAR DOIM OCHIQ TURISHI UCHUN */
+    .sidebar {
+        position: static !important;
+        left: 0 !important;
+        display: block !important;
+        width: 260px !important;
+    }
+
+    .menu-toggle-btn, .bottom-nav {
+        display: none !important; /* Kompyuterda bu tugmalar mutlaqo yo'qoladi */
+    }
+}
+
+
+@media (max-width: 768px) {
+    /* Yashil tugmani searchdan (qidiruvdan) teparoqqa yoki chetroqqa suramiz */
+    .menu-toggle-btn {
+        position: fixed !important;
+        top: 10px !important;
+        left: 10px !important;
+        z-index: 10005 !important;
+    }
+
+    /* Qidiruv maydoni tugma bilan to'qnashmasligi uchun */
+    .search-bar-container {
+        padding-left: 60px !important; /* Tugma uchun joy ochamiz */
+    }
+
+    /* Pastki panelni 4 ta tugmaga moslab tekislash */
+    .bottom-nav {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 0 !important;
+    }
+}
+
+/* 1. Kompyuterda mobil elementlarni qat'iy yashiramiz */
+@media screen and (min-width: 769px) {
+    .menu-toggle-btn, 
+    .mobile-nav-toggle, 
+    .bottom-nav {
+        display: none !important; /* Katta ekranda bular mutlaqo ko'rinmaydi */
+    }
+
+    .sidebar {
+        position: static !important;
+        left: 0 !important;
+        width: 260px !important;
+        display: block !important;
+    }
+}
+
+/* 2. Mobil ekranda sidebar-ni tartibga solamiz */
+@media screen and (max-width: 768px) {
+    .sidebar {
+        position: fixed !important;
+        left: -100% !important; /* Telefon ekranida dastlab yashirin turadi */
+        transition: 0.3s ease;
+        z-index: 10001;
+    }
+
+    .sidebar.active {
+        left: 0 !important; /* Tugma bosilganda chiqadi */
+    }
+
+    .menu-toggle-btn {
+        display: flex !important; /* Faqat telefonda chiqadi */
+    }
+
+    .bottom-nav {
+        display: flex !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar.active .nav-text, 
+    .sidebar.active .logo-text,
+    .sidebar.active span {
+        display: inline-block !important; /* Yashirin matnlarni chiqaradi */
+        opacity: 1 !important;
+        visibility: visible !important;
+        margin-left: 10px;
     }
 }

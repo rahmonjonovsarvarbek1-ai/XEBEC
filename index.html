@@ -50,6 +50,9 @@
                 <div class="logo-icon"><i class="fas fa-bolt"></i></div>
                 <span class="logo-text">XEBEC</span>
             </div>
+            <button onclick="toggleSidebar()" class="mobile-menu-btn">
+               <i class="fas fa-bars"></i>
+             </button>
             
             <nav class="side-nav">
                 <p class="nav-label">Asosiy Menu</p>
@@ -82,16 +85,26 @@
                   </div>
             </nav>
 
+
+
            <aside class="side-nav">
     <nav class="nav-content">
         </nav>
 
     <div class="sidebar-footer">
-        <div class="icon-circle" onclick="toggleAuthModal('open')" title="Tizimga kirish">
+    <div class="nav-item" onclick="toggleAuthModal()">
+        <div class="icon-circle">
             <i class="far fa-user"></i>
         </div>
-        <span class="nav-text">Ro'yhatdan o'tish</span>
+        <span class="nav-text">Kirish / Ro'yxat</span>
     </div>
+    
+    <div class="nav-item logout-btn" style="color: #ff7675; margin-top: 10px;">
+        <i class="fas fa-sign-out-alt"></i>
+        <span class="nav-text">Chiqish</span>
+    </div>
+    </div>
+ 
 </aside>
 
             <div class="pro-card">
@@ -641,8 +654,8 @@
     </div>
 </div>
 
-<div class="bottom-nav">
-    <a href="#" onclick="showSection('dashboard')" class="nav-item-mobile">
+<<div class="bottom-nav">
+    <a href="#" onclick="showSection('dash')" class="nav-item-mobile">
         <i class="fas fa-th-large"></i>
         <span>Asosiy</span>
     </a>
@@ -654,11 +667,59 @@
         <i class="fas fa-shopping-basket"></i>
         <span>Bozor</span>
     </a>
-    <a href="#" onclick="toggleMenu()" class="nav-item-mobile">
-        <i class="fas fa-bars"></i>
-        <span>Yana</span>
+    <a href="#" onclick="showSection('profil')" class="nav-item-mobile">
+        <i class="fas fa-user"></i>
+        <span>Profil</span>
     </a>
 </div>
+<script>
+function toggleMenu() {
+    // Klassni juda aniq qidiramiz
+    const sideNav = document.querySelector('.side-nav');
+    
+    if (sideNav) {
+        sideNav.classList.toggle('active');
+        console.log("Menyu ochildi!");
+    } else {
+        console.error("Xato: .side-nav topilmadi!");
+    }
+}
+
+// Menyu ichidagi havolalar bosilganda menyu yopilishi uchun
+document.querySelectorAll('.side-nav a, .side-nav li').forEach(item => {
+    item.addEventListener('click', () => {
+        const sideNav = document.querySelector('.side-nav');
+        if(sideNav) sideNav.classList.remove('active');
+    });
+});
+</script>
+<script>
+console.log("Script yuklandi!"); // Bu xabar chiqsa, demak JS ishlayapti
+
+function toggleMenu() {
+    console.log("Tugma bosildi!");
+    const sideNav = document.querySelector('.side-nav');
+    
+    if (sideNav) {
+        sideNav.classList.toggle('active');
+        console.log("Klass qo'shildi/olindi!");
+    } else {
+        alert("Xato: .side-nav topilmadi!");
+    }
+}
+</script>
+
+<script>
+function toggleSidebar() {
+    // Sizda klass nomi "sidebar" ekan, shuni topamiz
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+        sidebar.classList.toggle('active');
+    }
+}
+</script>
+
+
 
     <script src="script.js"></script>
 </body>
