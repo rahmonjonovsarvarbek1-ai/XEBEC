@@ -2376,3 +2376,81 @@ input:checked + .slider:before { transform: translateX(22px); }
     object-fit: cover;
     margin-right: 12px;
 }
+
+
+/* TELEFONLAR UCHUN MAXSUS MOSLASHUV (Responsive Design) */
+@media screen and (max-width: 480px) {
+    
+    /* 1. Asosiy konteyner chekkalarini kamaytiramiz */
+    .muhokama-wrapper {
+        padding: 10px;
+        margin-bottom: 70px; /* Pastki menyu ustiga chiqib qolmasligi uchun */
+    }
+
+    /* 2. Post yozish joyini ixchamlashtiramiz */
+    .tweet-composer {
+        padding: 12px;
+        border-radius: 15px;
+    }
+
+    .composer-top img {
+        width: 40px;
+        height: 40px;
+    }
+
+    #globalPostInput {
+        font-size: 16px; /* Telefon klaviaturasi ochilganda ekran "zoom" bo'lib ketmasligi uchun */
+    }
+
+    /* 3. Postlardagi matn va rasm o'lchamlarini moslaymiz */
+    .feed-card {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .post-text {
+        font-size: 15px;
+        line-height: 1.4;
+    }
+
+    .user-mini-avatar {
+        width: 40px;
+        height: 40px;
+    }
+
+    /* 4. Pastki tugmalarni (Like, Comment) telefon barmoqlari uchun kattalashtiramiz */
+    .post-footer {
+        justify-content: space-between;
+        padding-top: 10px;
+        margin-top: 8px;
+        border-top: 1px solid #f0f2f5;
+    }
+
+    .action-unit {
+        padding: 8px 12px; /* Bosishga oson bo'lishi uchun maydonni kengaytirdik */
+        font-size: 14px;
+    }
+
+    .action-unit i {
+        font-size: 18px; /* Ikonkalarni biroz kattalashtirdik */
+    }
+
+    /* 5. Post qilish tugmasini telefon uchun moslash */
+    .btn-post-main {
+        padding: 8px 20px;
+        font-size: 14px;
+        border-radius: 20px;
+    }
+
+    /* 6. Profil sahifasidagi rasm va ma'lumotlarni telefon markaziga joylash */
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
+    }
+
+    .profile-image-large {
+        width: 100px;
+        height: 100px;
+    }
+}
