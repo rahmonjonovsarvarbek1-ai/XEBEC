@@ -617,21 +617,38 @@ body {
 }
 .btn-cancel:hover { background: #e2e8f0; color: #1e293b; }
 
-/* 5. PROFIL RASMI: Mukammal Davra (Circle) va Kuchli UI */
+/* 5. PROFIL RASMI: Mukammal Davra va To'g'ri Markazlash */
 .avatar-container {
-    width: 120px; height: 120px; /* Aniq o'lcham */
-    border-radius: 50%; /* Mukammal davra */
+    width: 120px; 
+    height: 120px;
+    border-radius: 50%;
     position: relative;
-    border: 5px solid white; /* Oq xalqa (border) */
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1); /* Yumshoq soya */
-    overflow: hidden; /* Rasmni chetga chiqmasligini ta'minlash */
+    border: 4px solid white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    
+    /* Rasmni qat'iy doira ichida ushlash */
+    overflow: hidden; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.avatar-container img {
-    width: 100%; height: 100%; object-fit: cover; /* Rasmni cho'zmasdan sig'dirish */
-    transition: 0.5s;
-}
-.avatar-container:hover img { transform: scale(1.1); /* Kattalashish effekti */ }
 
+.avatar-container img {
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; /* Rasmni cho'zmasdan sig'diradi */
+    
+    /* RASMNI YAQUINLASHTIRISH (ZOOM) */
+    /* 1.2 yoki 1.3 qilib o'zingizga yoqquncha o'zgartirishingiz mumkin */
+    transform: scale(1.2); 
+    
+    transition: 0.5s ease-in-out;
+}
+
+/* Hover bo'lganda yana biroz yaqinlashishi uchun */
+.avatar-container:hover img { 
+    transform: scale(1.3); 
+}
 /* Kamera belgisini mukammallashtirish */
 .change-photo {
     position: absolute;
@@ -1675,3 +1692,108 @@ input:checked + .slider:before { transform: translateX(22px); }
     cursor: pointer;
 }
 
+/* Login dizayni */
+
+.auth-wrapper { padding: 50px 20px; display: flex; justify-content: center; }
+.auth-card { background: #fff; padding: 40px; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); width: 100%; max-width: 450px; text-align: center; }
+.auth-field { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; border: 1.5px solid #eee; outline: none; transition: 0.3s; }
+.auth-field:focus { border-color: #00b894; }
+.auth-action-btn { width: 100%; padding: 15px; background: #00b894; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
+.apple-login-btn { width: 100%; padding: 14px; background: #000; color: #fff; border-radius: 12px; border: none; cursor: pointer; margin-bottom: 20px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.auth-separator { margin: 20px 0; position: relative; color: #888; font-size: 14px; }
+.auth-separator::before, .auth-separator::after { content: ""; position: absolute; top: 50%; width: 35%; height: 1px; background: #eee; }
+.auth-separator::before { left: 0; } .auth-separator::after { right: 0; }
+.btn-delete-account { color: #ff7675; background: none; border: 1px solid #ff7675; padding: 10px; border-radius: 10px; cursor: pointer; margin-top: 15px; width: 100%; font-size: 13px; }
+
+
+.info-value-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.edit-input {
+    border: 1px solid #00b894;
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2d3436;
+    outline: none;
+    width: 140px;
+}
+
+.btn-edit-small, .btn-save-small {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.btn-edit-small { color: #b2bec3; }
+.btn-edit-small:hover { color: #0984e3; }
+
+.btn-save-small { color: #00b894; }
+.btn-save-small:hover { transform: scale(1.2); }
+
+
+
+
+/* Drawer Asosiy Stili */
+.settings-drawer {
+    position: fixed;
+    top: 0;
+    left: -280px; /* Dastlab yashirin */
+    width: 280px;
+    height: 100%;
+    background: #ffffff;
+    z-index: 1000;
+    transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+    padding: 20px;
+}
+
+/* Panel ochilgan holati */
+.settings-drawer.open {
+    left: 0;
+}
+
+/* Fonni qoraytirish */
+.drawer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    z-index: 999;
+    backdrop-filter: blur(3px);
+}
+
+.drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+.drawer-item {
+    padding: 15px 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: 0.2s;
+}
+
+.drawer-item:hover {
+    background: #f8f9fa;
+}
+
+.delete-item { color: #ff7675; }

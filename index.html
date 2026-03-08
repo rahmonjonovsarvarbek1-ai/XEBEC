@@ -327,159 +327,205 @@
     </div>
 </section>
 
-            <section id="profil" class="content-section">
-    <div class="profile-page-wrapper">
-        <div class="profile-header">
-            <div class="cover-photo">
-                <button class="edit-cover"><i class="fas fa-pen"></i></button>
+           <section id="profil" class="content-section" style="display: none;">
+    <div id="auth-gate" class="auth-wrapper">
+        <div class="auth-card">
+            <div class="auth-header-top">
+                <i class="fas fa-user-shield"></i>
+                <h2>Xebec-ga xush kelibsiz</h2>
+                <p>Ma'lumotlaringizni saqlash uchun profilingizga kiring</p>
             </div>
-            <div class="profile-main">
-                <div class="avatar-container">
-                    <img src="https://i.pravatar.cc/150?img=11" id="userAvatar" alt="User Avatar">
-                    <label for="avatarInput" class="change-photo">
-                        <i class="fas fa-camera"></i>
-                        <input type="file" id="avatarInput" hidden accept="image/*">
-                    </label>
-                </div>
-                <div class="profile-title">
-                    <h2 id="displayFullName">Admin User <i class="fas fa-check-circle verified"></i></h2>
-                    <p id="displayLocation"><i class="fas fa-map-marker-alt"></i> Toshkent, O'zbekiston</p>
-                </div>
-                <div class="profile-actions">
-                    <button class="btn-edit" onclick="openEditModal()"><i class="fas fa-user-edit"></i> Tahrirlash</button>
-                </div>
-            </div>
-        </div>
 
-        <div class="profile-sidebar-info">
+            <div class="social-login">
+                <button class="apple-login-btn" onclick="handleSocialAuth('iCloud')">
+                    <i class="fab fa-apple"></i> iCloud bilan kirish
+                </button>
+            </div>
+
+            <div class="auth-separator"><span>yoki email orqali</span></div>
+
+            <form onsubmit="initiateUserSession(event)">
+                <input type="text" id="regFullName" placeholder="To'liq ismingiz" required class="auth-field">
+            <div class="username-field-wrapper" style="position: relative; margin-bottom: 15px;">
+                <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #00b894; font-weight: bold;">@</span>
+                <input type="text" id="regUsername" placeholder="username" required class="auth-field" style="padding-left: 35px !important; width: 100%;">
+            </div>
+                <input type="email" id="regEmail" placeholder="Email manzilingiz" required class="auth-field">
+                <input type="password" id="regPass" placeholder="Parol yarating" required class="auth-field">
+                <button type="submit" class="auth-action-btn">Profilni yaratish va Kirish</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="real-profile-content" style="display: none;">
+        <div class="profile-page-wrapper">
+            <div class="profile-header">
+                <div class="cover-photo">
+                    <button class="btn-settings-mobile" onclick="toggleDrawer()">
+                       <i class="fas fa-cog"></i>
+                    </button>
+                    <button class="edit-cover"><i class="fas fa-pen"></i></button>
+                </div>
+                <div class="profile-main">
+                    <div class="avatar-container">
+    <div class="avatar-wrapper">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ccc'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" 
+             id="userAvatar" 
+             class="default-avatar">
+    </div>
+    
+    <label for="avatarInput" class="change-photo">
+        <i class="fas fa-camera"></i>
+        <input type="file" id="avatarInput" hidden accept="image/*" onchange="previewImage(event)">
+    </label>
+</div>
+</div>
+                    <div class="profile-title">
+                       <h2 id="displayFullName">Admin User <i class="fas fa-check-circle verified"></i></h2>
+    
+                     <p id="displayUsername" style="color: #00b894; font-weight: 600; margin: 5px 0;">@username</p>
+    
+                     <p id="displayLocation"><i class="fas fa-map-marker-alt"></i> Toshkent, O'zbekiston</p>
+                   </div>
+                    <div class="profile-actions">
+                        <button class="btn-logout-small" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-sidebar-info">
     <div class="info-card animate-slide-up">
         <div class="card-header">
             <h3><i class="fas fa-id-card"></i> Shaxsiy ma'lumotlar</h3>
             <span class="user-status-tag">VIP</span>
         </div>
+        
         <div class="info-list">
-            <div class="info-row">
-                <div class="info-label"><i class="fas fa-hashtag"></i> ID:</div>
-                <strong id="displayID">#8821</strong>
-            </div>
-            <div class="info-row">
-                <div class="info-label"><i class="fas fa-phone-alt"></i> Tel:</div>
-                <strong id="displayPhone">+998 90 123 45 67</strong>
-            </div>
-            <div class="info-row">
-                <div class="info-label"><i class="fas fa-briefcase"></i> Soha:</div>
-                <strong id="displayJob">Bosh Administrator</strong>
-            </div>
-            <div class="info-row">
-                <div class="info-label"><i class="fas fa-calendar-alt"></i> Ro'yxatdan o'tgan:</div>
-                <strong>12.05.2023</strong>
-            </div>
+    <div class="info-row">
+        <div class="info-label"><i class="fas fa-phone-alt"></i> Tel:</div>
+        <div class="info-value-wrapper">
+            <strong id="displayPhone">+998 90 123 45 67</strong>
+            <input type="text" id="editPhone" class="edit-input" style="display:none;">
+            <button class="btn-edit-small" onclick="toggleEdit('Phone')"><i class="fas fa-edit"></i></button>
+            <button class="btn-save-small" id="savePhone" style="display:none;" onclick="saveField('Phone')"><i class="fas fa-check"></i></button>
         </div>
     </div>
 
-    <div class="wallet-card animate-slide-up" style="animation-delay: 0.1s">
-        <div class="wallet-info">
-            <p>Joriy balans</p>
-            <h2 id="displayBalance">500,000 <span>UZS</span></h2>
-        </div>
-        <div class="wallet-actions">
-            <button class="btn-topup"><i class="fas fa-plus"></i> To'ldirish</button>
-            <button class="btn-withdraw"><i class="fas fa-arrow-up"></i> Yechish</button>
-        </div>
-        <div class="balance-footer">
-            <i class="fas fa-info-circle"></i> Keyingi to'lovga 3 kun qoldi
+    <div class="info-row">
+        <div class="info-label"><i class="fab fa-telegram-plane"></i> Telegram:</div>
+        <div class="info-value-wrapper">
+            <strong id="displayTelegram">@sarvar</strong>
+            <input type="text" id="editTelegram" class="edit-input" style="display:none;">
+            <button class="btn-edit-small" onclick="toggleEdit('Telegram')"><i class="fas fa-edit"></i></button>
+            <button class="btn-save-small" id="saveTelegram" style="display:none;" onclick="saveField('Telegram')"><i class="fas fa-check"></i></button>
         </div>
     </div>
 
-    <div class="rating-card animate-slide-up" style="animation-delay: 0.2s">
-        <p>Foydalanuvchi reytingi</p>
-        <div class="rating-stars">
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star-half-alt"></i>
-            <span>4.8</span>
+    <div class="info-row">
+        <div class="info-label"><i class="fas fa-briefcase"></i> Soha:</div>
+        <div class="info-value-wrapper">
+            <strong id="displayJob">Bosh Administrator</strong>
+            <input type="text" id="editJob" class="edit-input" style="display:none;">
+            <button class="btn-edit-small" onclick="toggleEdit('Job')"><i class="fas fa-edit"></i></button>
+            <button class="btn-save-small" id="saveJob" style="display:none;" onclick="saveField('Job')"><i class="fas fa-check"></i></button>
         </div>
-        <div class="progress-container">
-            <div class="progress-bar" style="width: 85%"></div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-label"><i class="fas fa-map-marker-alt"></i> Manzil:</div>
+        <div class="info-value-wrapper">
+            <strong id="displayCity">Toshkent, O'zbekiston</strong>
+            <input type="text" id="editCity" class="edit-input" style="display:none;">
+            <button class="btn-edit-small" onclick="toggleEdit('City')"><i class="fas fa-edit"></i></button>
+            <button class="btn-save-small" id="saveCity" style="display:none;" onclick="saveField('City')"><i class="fas fa-check"></i></button>
         </div>
-        <small>Siz ustalarning top 10% ligidasiz</small>
     </div>
 </div>
+
+        <div class="card-actions">
+            <button class="btn-delete-account" onclick="confirmAccountDeletion()">
+                <i class="fas fa-user-slash"></i> Hisobni butunlay o'chirish
+            </button>
+        </div>
+    </div>
+</div>
+
+                <div class="wallet-card animate-slide-up" style="animation-delay: 0.1s">
+                    <div class="wallet-info">
+                        <p>Joriy balans</p>
+                        <h2 id="displayBalance">500,000 <span>UZS</span></h2>
+                    </div>
+                    <div class="wallet-actions">
+                        <button class="btn-topup"><i class="fas fa-plus"></i> To'ldirish</button>
+                        <button class="btn-withdraw"><i class="fas fa-arrow-up"></i> Yechish</button>
+                    </div>
+                    <div class="balance-footer">
+                        <i class="fas fa-info-circle"></i> Keyingi to'lovga 3 kun qoldi
+                    </div>
+                </div>
+
+                <div class="rating-card animate-slide-up" style="animation-delay: 0.2s">
+                    <p>Foydalanuvchi reytingi</p>
+                    <div class="rating-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                        <span>4.8</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 85%"></div>
+                    </div>
+                    <small>Siz ustalarning top 10% ligidasiz</small>
+                </div>
+            </div>
 
             <div class="profile-content">
-    <div class="tabs-container">
-        <div class="tabs">
-            <button class="tab-item active" onclick="switchTab(this, 'ads')">
-                <i class="fas fa-th-large"></i> 
-                <span>E'lonlarim</span>
-                <span class="tab-badge">0</span>
-            </button>
-            <button class="tab-item" onclick="switchTab(this, 'reviews')">
-                <i class="fas fa-star"></i> 
-                <span>Sharhlar</span>
-                <span class="tab-badge secondary">12</span>
-            </button>
-            <button class="tab-item" onclick="switchTab(this, 'security')">
-                <i class="fas fa-shield-alt"></i> 
-                <span>Xavfsizlik</span>
-            </button>
-        </div>
-        <div class="tabs-indicator"></div> </div>
+                <div class="tabs-container">
+                    <div class="tabs">
+                        <button class="tab-item active" onclick="switchTab(this, 'ads')">
+                            <i class="fas fa-th-large"></i> 
+                            <span>E'lonlarim</span>
+                            <span class="tab-badge">0</span>
+                        </button>
+                        <button class="tab-item" onclick="switchTab(this, 'reviews')">
+                            <i class="fas fa-star"></i> 
+                            <span>Sharhlar</span>
+                            <span class="tab-badge secondary">12</span>
+                        </button>
+                        <button class="tab-item" onclick="switchTab(this, 'security')">
+                            <i class="fas fa-shield-alt"></i> 
+                            <span>Xavfsizlik</span>
+                        </button>
+                    </div>
+                    <div class="tabs-indicator"></div> 
+                </div>
 
-    <div class="tab-content-wrapper" id="tabContent">
-        <div class="animate-fade-in">
-            <div class="content-header">
-                <h3>Faol e'lonlaringiz</h3>
-                <button class="btn-add-new"><i class="fas fa-plus-circle"></i> Yangi qo'shish</button>
-            </div>
-            
-            <div class="empty-state-advanced">
-                <div class="illustration-box">
-                    <i class="fas fa-folder-plus"></i>
+                <div class="tab-content-wrapper" id="tabContent">
+                    <div class="animate-fade-in">
+                        <div class="content-header">
+                            <h3>Faol e'lonlaringiz</h3>
+                            <button class="btn-add-new"><i class="fas fa-plus-circle"></i> Yangi qo'shish</button>
+                        </div>
+                        <div class="empty-state-advanced">
+                            <div class="illustration-box">
+                                <i class="fas fa-folder-plus"></i>
+                            </div>
+                            <h4>Hozircha hech narsa yo'q</h4>
+                            <p>Siz hali biron bir xizmat yoki mahsulot bo'yicha e'lon bermadingiz.</p>
+                        </div>
+                    </div>
                 </div>
-                <h4>Hozircha hech narsa yo'q</h4>
-                <p>Siz hali biron bir xizmat yoki mahsulot bo'yicha e'lon bermadingiz. Birinchi e'loningizni hoziroq joylashtiring!</p>
-                <div class="quick-tips">
-                    <span><i class="fas fa-lightbulb"></i> Maslahat: Sifatli rasm ko'proq mijoz jalb qiladi.</span>
-                </div>
             </div>
-        </div>
+            </div>
     </div>
-</div>
-
+    
     <div id="editModal" class="modal-overlay">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h2>Profilni tahrirlash</h2>
-                <button onclick="closeEditModal()" class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="input-group">
-                    <label>Ism va Familiya</label>
-                    <input type="text" id="inputFullName" placeholder="Ismingizni kiriting">
-                </div>
-                <div class="input-group">
-                    <label>Telefon raqam</label>
-                    <input type="text" id="inputPhone" placeholder="+998">
-                </div>
-                <div class="input-group">
-                    <label>Manzil</label>
-                    <input type="text" id="inputLocation" placeholder="Masalan: Toshkent">
-                </div>
-                <div class="input-group">
-                    <label>Mutaxassislik</label>
-                    <input type="text" id="inputJob" placeholder="Sohangiz">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-cancel" onclick="closeEditModal()">Bekor qilish</button>
-                <button class="btn-save" onclick="saveProfile()">Saqlash</button>
-            </div>
         </div>
-    </div>
 </section>
+
+
 <section id="sozlamalar" class="content-section">
     <div class="settings-container">
         <div class="settings-header">
@@ -656,7 +702,7 @@
     </div>
 </div>
 
-<<div class="bottom-nav">
+<div class="bottom-nav">
     <a href="#" onclick="showSection('dash')" class="nav-item-mobile">
         <i class="fas fa-th-large"></i>
         <span>Asosiy</span>
@@ -742,7 +788,31 @@ function toggleSidebar() {
     </div>
 </div>
 
+<div id="settingsDrawer" class="settings-drawer">
+    <div class="drawer-header">
+        <h3><i class="fas fa-cog"></i> Sozlamalar</h3>
+        <button class="btn-close-drawer" onclick="toggleDrawer()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="drawer-content">
+        <div class="drawer-item" onclick="showSection('sozlamalar'); toggleDrawer();">
+            <i class="fas fa-user-edit"></i> Profilni tahrirlash
+        </div>
+        <div class="drawer-item" onclick="toggleTheme()">
+            <i class="fas fa-moon"></i> Tungi rejim
+        </div>
+        <div class="drawer-item" onclick="openLanguageSettings()">
+            <i class="fas fa-globe"></i> Tilni tanlash
+        </div>
+        <hr>
+        <div class="drawer-item delete-item" onclick="confirmAccountDeletion()">
+            <i class="fas fa-user-slash"></i> Hisobni o'chirish
+        </div>
+    </div>
+</div>
 
+<div id="drawerOverlay" class="drawer-overlay" onclick="toggleDrawer()"></div>
 
     <script src="script.js"></script>
 </body>

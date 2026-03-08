@@ -542,3 +542,170 @@ function showSection(sectionId) {
     // 4. Pastki navigatsiyada aktiv holatni yangilash (ixtiyoriy)
     console.log("Hozirgi bo'lim: " + sectionId);
 }
+
+
+// SAHIFANI TEKSHIRISH
+window.addEventListener('load', () => {
+    const savedUser = localStorage.getItem('Xebec_Persistent_User');
+    if (savedUser) {
+        unlockProfile(JSON.parse(savedUser));
+    }
+});
+
+// LOGIN / SIGN IN FUNKSIYASI
+function initiateUserSession(event) {
+    event.preventDefault();
+    
+   const user = {
+    name: document.getElementById('regFullName').value,
+    // USERNAME QISMI QO'SHILDI
+    username: document.getElementById('regUsername').value.toLowerCase().trim(), 
+    email: document.getElementById('regEmail').value,
+    id: Math.floor(1000 + Math.random() * 9000), // Random ID
+    joinDate: new Date().toLocaleDateString() //
+};
+
+    // LOCALSTORAGEGA SAQLASH (ABADIIY)
+    localStorage.setItem('Xebec_Persistent_User', JSON.stringify(user));
+    unlockProfile(user);
+}
+
+// PROFILNI OCHISH
+function unlockProfile(user) {
+    document.getElementById('auth-gate').style.display = 'none';
+    document.getElementById('real-profile-content').style.display = 'block';
+    
+    // Foydalanuvchi ma'lumotlarini kiritish
+    document.getElementById('displayFullName').innerHTML = `${user.name} <i class="fas fa-check-circle verified"></i>`;
+    
+    // @USERNAME QISMI QO'SHILDI
+    if(user.username) {
+        document.getElementById('displayUsername').innerText = `@${user.username}`;
+    }
+    
+    document.getElementById('displayID').innerText = `#${user.id}`;
+    document.getElementById('displayJoinedDate').innerText = user.joinDate;
+}
+
+// HISOBNI O'CHIRISH (SIZ AYTGAN DELETE)
+function confirmAccountDeletion() {
+    if(confirm("Diqqat! Hisobni o'chirsangiz, barcha ma'lumotlaringiz abadiy yo'qoladi. Rozimisiz?")) {
+        localStorage.removeItem('Xebec_Persistent_User');
+        location.reload();
+    }
+}
+
+function handleLogout() {
+    // Chiqishda ma'lumot o'chmaydi, shunchaki login oynasi qaytadi
+    document.getElementById('real-profile-content').style.display = 'none';
+    document.getElementById('auth-gate').style.display = 'block';
+}
+
+// Username orqali qidirish funksiyasi
+function searchByUserHandle(handle) {
+    const searchInput = document.querySelector('.search-bar input').value;
+    
+    if (searchInput.startsWith('@')) {
+        const query = searchInput.substring(1).toLowerCase();
+        console.log(`Foydalanuvchi qidirilmoqda: ${query}`);
+        // Bu yerda kelajakda bazadan qidirish mantiqi bo'ladi
+    }
+}
+
+function loadUserInfo() {
+    const userData = JSON.parse(localStorage.getItem('Xebec_Persistent_User'));
+    
+    if (userData) {
+        document.getElementById('displayID').innerText = `#${userData.id || '9874'}`;
+        document.getElementById('displayPhone').innerText = userData.phone || '+998 90 123 45 67';
+        document.getElementById('displayTelegram').innerText = userData.telegram || '@username';
+        document.getElementById('displayJob').innerText = userData.job || 'Bosh Administrator';
+        document.getElementById('displayCity').innerText = userData.city || 'Toshkent, O\'zbekiston';
+        document.getElementById('displayJoinedDate').innerText = userData.joinDate || '08.03.2026';
+    }
+}
+
+// Sahifa yuklanganda ma'lumotlarni to'ldirish
+window.onload = loadUserInfo;
+
+// Tahrirlash rejimini yoqish/o'chirish
+function toggleEdit(field) {
+    const displayElement = document.getElementById(`display${field}`);
+    const inputElement = document.getElementById(`edit${field}`);
+    const saveBtn = document.getElementById(`save${field}`);
+    
+    // Matnni inputga o'tkazish
+    inputElement.value = displayElement.innerText;
+    
+    // Elementlarni ko'rsatish/yashirish
+    displayElement.style.display = 'none';
+    inputElement.style.display = 'inline-block';
+    saveBtn.style.display = 'inline-block';
+    inputElement.focus();
+}
+
+// Tahrirlash rejimini yoqish/o'chirish
+function toggleEdit(field) {
+    const displayElement = document.getElementById(`display${field}`);
+    const inputElement = document.getElementById(`edit${field}`);
+    const saveBtn = document.getElementById(`save${field}`);
+    
+    if (!displayElement || !inputElement || !saveBtn) return; // Element topilmasa to'xtatish
+
+    // Matnni inputga o'tkazish
+    inputElement.value = displayElement.innerText;
+    
+    // Elementlarni ko'rsatish/yashirish
+    displayElement.style.display = 'none';
+    inputElement.style.display = 'inline-block';
+    saveBtn.style.display = 'inline-block';
+    inputElement.focus();
+}
+
+// Ma'lumotni saqlash
+function saveField(field) {
+    const displayElement = document.getElementById(`display${field}`);
+    const inputElement = document.getElementById(`edit${field}`);
+    const saveBtn = document.getElementById(`save${field}`); // BU YERDA XATO BOR EDI
+    
+    if (!displayElement || !inputElement || !saveBtn) return;
+
+    const newValue = inputElement.value;
+    displayElement.innerText = newValue;
+
+    // LocalStorage ni yangilash
+    const userData = JSON.parse(localStorage.getItem('Xebec_Persistent_User')) || {};
+    
+    // Maydon nomini bazaga moslash
+    const dbField = field.toLowerCase();
+    
+    // Obyektdagi kalitlarni tekshirib saqlash
+    if (dbField === 'city') {
+        userData.city = newValue;
+    } else if (dbField === 'job') {
+        userData.job = newValue;
+    } else {
+        userData[dbField] = newValue;
+    }
+    
+    localStorage.setItem('Xebec_Persistent_User', JSON.stringify(userData));
+
+    // Elementlarni qaytarish
+    displayElement.style.display = 'inline-block';
+    inputElement.style.display = 'none';
+    saveBtn.style.display = 'none';
+}
+
+function toggleDrawer() {
+    const drawer = document.getElementById('settingsDrawer');
+    const overlay = document.getElementById('drawerOverlay');
+    
+    drawer.classList.toggle('open');
+    
+    // Overlayni ko'rsatish yoki yashirish
+    if (drawer.classList.contains('open')) {
+        overlay.style.display = 'block';
+    } else {
+        overlay.style.display = 'none';
+    }
+}
