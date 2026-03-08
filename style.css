@@ -1797,3 +1797,53 @@ input:checked + .slider:before { transform: translateX(22px); }
 }
 
 .delete-item { color: #ff7675; }
+
+.btn-settings-premium {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 50px; /* Kattaroq o'lcham */
+    height: 50px;
+    background: rgba(255, 255, 255, 0.15); /* Shaffoflik */
+    backdrop-filter: blur(15px); /* Shisha effekti */
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 15px; /* Yumshoq kvadrat */
+    color: #ffffff;
+    font-size: 22px; /* Ikona hajmi */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+/* Tugma ustiga borganda (Hover) */
+.btn-settings-premium:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: rotate(45deg) scale(1.1); /* Aylanish va kattalashish */
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+/* Tugmani bosganda */
+.btn-settings-premium:active {
+    transform: scale(0.9);
+}
+
+/* Ichidagi ikona aylanishi uchun */
+.btn-settings-premium i {
+    transition: transform 0.5s ease;
+}
+
+/* Telefon ekranlari uchun moslashuvchanlik */
+@media (max-width: 480px) {
+    .btn-settings-premium {
+        width: 45px;
+        height: 45px;
+        top: 15px;
+        right: 15px;
+        font-size: 20px;
+    }
+}
