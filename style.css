@@ -2455,13 +2455,31 @@ input:checked + .slider:before { transform: translateX(22px); }
     }
 }
 
-/* Sidebar logo uchun qo'shimcha CSS */
-.main-logo-svg {
-    transform: scale(0.85); /* Sidebar kadriga sig'ishi uchun */
+/* Sidebar logotipi uchun maxsus o'lcham */
+.logo-area {
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    max-width: 100%;
 }
 
-/* Oldingi xabarimda bergan CSS stillarini (pulse, gradient) ishlatavering */
-.logo-icon {
-    /* ... avvalgi stillar ... */
-    background: transparent; /* SVG fonini shaffof qilish uchun */
+.logo-area img {
+    width: 35px; /* Logotip o'lchamini kichraytiramiz */
+    height: 35px;
+    object-fit: contain;
+    margin-right: 10px;
+}
+
+.logo-text {
+    font-size: 20px; /* Matn o'lchamini sidebar-ga moslaymiz */
+    font-weight: 800;
+    color: #1e293b;
+    letter-spacing: -0.5px;
+}
+
+.logo-tagline {
+    font-size: 9px;
+    color: #64748b;
+    display: block; /* Tagline pastki qatorda bo'lishi uchun */
 }
