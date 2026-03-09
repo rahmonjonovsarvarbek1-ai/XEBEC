@@ -47,92 +47,43 @@
 </head>
 <body>
 
-   <div class="sidebar">
+  <aside class="sidebar">
     <div class="logo-area">
         <div class="logo-icon">
-            <svg width="40" height="40" viewBox="0 0 100 100" class="main-logo-svg">
-                <defs>
-                    <linearGradient id="torvexGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" /> <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:1" /> </linearGradient>
-                </defs>
-                <path d="M20,10 L80,10 L80,30 L60,30 L60,90 L40,90 L40,30 L20,30 Z" fill="url(#torvexGradient)" />
-                <path d="M60,40 L90,40 L90,60 L60,60 Z" fill="url(#torvexGradient)" opacity="0.7" />
-                <path d="M10,40 L40,40 L40,60 L10,60 Z" fill="url(#torvexGradient)" opacity="0.7" />
-            </svg>
-            <div class="logo-pulse"></div> </div>
+            <svg width="35" height="35" viewBox="0 0 100 100">
+                </svg>
+        </div>
         <div class="logo-text-group">
             <span class="logo-text">TORVEX</span>
-            <span class="logo-tagline">Industrial Ecosystem</span>
         </div>
     </div>
-</div>
-            <button onclick="toggleSidebar()" class="mobile-menu-btn">
-               <i class="fas fa-bars"></i>
-             </button>
-            
-            <nav class="side-nav">
-                <p class="nav-label">Asosiy Menu</p>
-                <ul>
-                    <li onclick="showSection('dash')" class="nav-item active" id="li-dash">
-                        <i class="fas fa-chart-pie"></i> <span>Dashboard</span>
-                    </li>
-                    <li onclick="showSection('ustalar')" class="nav-item" id="li-ustalar">
-                        <i class="fas fa-user-ninja"></i> <span>Ustalar</span>
-                    </li>
-                    <li onclick="showSection('bozor')" class="nav-item" id="li-bozor">
-                        <i class="fas fa-shopping-bag"></i> <span>Torvex Bozor</span>
-                    </li>
-                    <li onclick="showSection('news')" class="nav-item" id="li-news">
-                        <i class="fas fa-newspaper"></i> <span>Yangiliklar</span>
-                    </li>
-                    <li onclick="showSection('muhokama')" class="nav-item" id="li-muhokama">
-                    <i class="fas fa-comments"></i> <span>Muhokama</span>
-                    </li>
-                </ul>
 
-                <p class="nav-label" style="margin-top: 20px;">Shaxsiy Kabinet</p>
-                <ul>
-                    <li onclick="showSection('profil')" class="nav-item" id="li-profil">
-                        <i class="fas fa-user-circle"></i> <span>Mening Profilim</span>
-                    </li>
-                    <li onclick="showSection('sozlamalar')" class="nav-item" id="li-settings">
-                        <i class="fas fa-cog"></i> <span>Sozlamalar</span>
-                    </li>
-                </ul>  
-                 <div class="mobile-nav-toggle" onclick="toggleMenu()">
-                   <i class="fas fa-bars"></i>
-                  </div>
-            </nav>
-
-
-
-           <aside class="side-nav">
-    <nav class="nav-content">
-        </nav>
-
-    <div class="sidebar-footer">
-    <div class="nav-item" onclick="toggleAuthModal()">
-        <div class="icon-circle">
-            <i class="far fa-user"></i>
+    <nav class="side-nav">
+        <ul>
+    <li onclick="showSection('dash')" class="nav-item active" id="li-dash">
+        <i class="fas fa-chart-pie"></i> <span>Dashboard</span>
+    </li>
+    <li onclick="showSection('ustalar')" class="nav-item" id="li-ustalar">
+        <i class="fas fa-user-ninja"></i> <span>Ustalar</span>
+    </li>
+    <li onclick="showSection('bozor')" class="nav-item" id="li-bozor">
+        <i class="fas fa-shopping-bag"></i> <span>Bozor</span>
+    </li>
+    <li onclick="showSection('muhokama')" class="nav-item" id="li-muhokama">
+        <i class="fas fa-comments"></i> <span>Muhokama</span>
+    </li>
+    <li onclick="showSection('profil')" class="nav-item" id="li-profil">
+        <i class="fas fa-user-circle"></i> <span>Profil</span>
+    </li>
+</ul>
+        
+        <div class="sidebar-footer desktop-only">
+             <div class="nav-item" onclick="toggleAuthModal()">
+                <i class="far fa-user"></i> <span>Kirish</span>
+             </div>
         </div>
-        <span class="nav-text">Kirish / Ro'yxat</span>
-    </div>
-    
-    <div class="nav-item logout-btn" style="color: #ff7675; margin-top: 10px;">
-        <i class="fas fa-sign-out-alt"></i>
-        <span class="nav-text">Chiqish</span>
-    </div>
-    </div>
- 
+    </nav>
 </aside>
-
-            <div class="pro-card">
-                <div class="pro-badge">PRO</div>
-                <p>Barcha imkoniyatlarni oching</p>
-                <button class="btn-pro">Obuna bo'lish</button>
-            </div>
-        </aside>
-
         <main class="main-content">
             <header class="top-bar">
                 <div class="search-wrapper">
@@ -427,8 +378,7 @@
                        <h2 id="displayFullName">Unknown user <i class="fas fa-check-circle verified"></i></h2>
     
                      <p id="displayUsername" style="color: #00b894; font-weight: 600; margin: 5px 0;">@username</p>
-    
-                     <p id="displayLocation"><i class="fas fa-map-marker-alt"></i> Toshkent, O'zbekiston</p>
+
                    </div>
                     <div class="profile-actions">
                         <button class="btn-logout-small" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i></button>
@@ -886,7 +836,48 @@ function toggleSidebar() {
     </div>
 </div>
 
+<div class="modal-overlay" id="addAdModal">
+    <div class="modal-box">
+        <div class="modal-top">
+            <h3>Yangi e'lon berish</h3>
+            <button class="close-modal" onclick="closeModal('addAdModal')">&times;</button>
+        </div>
+        <div class="modal-content-padding">
+            <input type="text" placeholder="Xizmat turi (masalan: Elektrik)">
+            <textarea placeholder="Tavsif..."></textarea>
+            <input type="number" placeholder="Narxi (so'mda)">
+        </div>
+        <div class="modal-bottom">
+            <button class="publish-btn">E'lonni joylash</button>
+        </div>
+    </div>
+</div>
 
+<div class="modal-overlay" id="walletModal">
+    <div class="modal-box balance-card">
+        <div class="modal-top">
+            <h3>Mening hisobim</h3>
+            <button class="close-modal" onclick="closeModal('walletModal')">&times;</button>
+        </div>
+        <div class="balance-view">
+            <h2 id="currentBalance">0.00 UZS</h2>
+            <button class="btn-top-up">Hisobni to'ldirish</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="supportModal">
+    <div class="modal-box">
+        <div class="modal-top">
+            <h3>Qo'llab-quvvatlash</h3>
+            <button class="close-modal" onclick="closeModal('supportModal')">&times;</button>
+        </div>
+        <div class="support-links">
+            <a href="https://t.me/your_admin" class="support-btn telegram"><i class="fab fa-telegram"></i> Telegram orqali bog'lanish</a>
+            <p>Ish vaqti: 09:00 - 18:00</p>
+        </div>
+    </div>
+</div>
     <script src="script.js"></script>
 </body>
 </html>

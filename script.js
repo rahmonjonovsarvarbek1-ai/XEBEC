@@ -1278,3 +1278,37 @@ function addComment(postId) {
         }
     }
 }
+
+// Har bir harakatni boshqarish
+function openAddAdModal() {
+    document.getElementById('addAdModal').classList.add('active');
+}
+
+function openWallet() {
+    document.getElementById('walletModal').classList.add('active');
+    // Balansni localStorage'dan olish (agar bo'lsa)
+    const bal = localStorage.getItem('user_balance') || "150,000";
+    document.getElementById('currentBalance').innerText = bal + " UZS";
+}
+
+function openPremium() {
+    alert("🚀 Premium funksiyasi tez kunda ishga tushadi! E'lonlaringizni TOP-ga chiqaring.");
+}
+
+function openSupport() {
+    document.getElementById('supportModal').classList.add('active');
+}
+
+// Modalni yopish funksiyasi
+function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+}
+
+// HTML-dagi tugmalarga funksiyalarni bog'laymiz (agar hali bog'lanmagan bo'lsa)
+document.addEventListener('DOMContentLoaded', () => {
+    const items = document.querySelectorAll('.action-item');
+    items[0].onclick = openAddAdModal;
+    items[1].onclick = openWallet;
+    items[2].onclick = openPremium;
+    items[3].onclick = openSupport;
+});
