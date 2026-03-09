@@ -37,7 +37,71 @@ function showSection(sectionId) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// 3. MASTERLARNI RENDER QILISH
+// 1. Pusherni sozlash (Fayl boshida yoki oxirida bir marta e'lon qilinadi)
+const pusher = new Pusher('SIZNING_APP_KEY', {
+    cluster: 'eu'
+});
+
+// 2. Chatni ochish funksiyasi
+function openConversation(userId, name, img) {
+    const messenger = document.getElementById('messengerMain');
+    
+    // UI ma'lumotlarini yangilash
+    document.getElementById('activeChatName').innerText = name;
+    document.getElementById('activeChatAvatar').src = img;
+    
+    // Sectionlarni ko'rsatish/yashirish
+    document.getElementById('noChatSelected').style.display = 'none';
+    document.getElementById('activeChat').style.display = 'flex';
+
+    // Mobil uchun klass qo'shish
+    if (window.innerWidth < 992) {
+        document.querySelector('.messenger-container').classList.add('is-active');
+    }
+
+    // Pusher kanaliga ulanish
+    pusher.unsubscribeAll(); // Oldingi chatlardan chiqish
+    const channel = pusher.subscribe(`chat-${userId}`);
+    
+    channel.bind('new-message', function(data) {
+        // Kelgan xabarni ekranga chiqarish
+        renderMessage(data.text, 'received');
+    });
+}
+
+// 3. Xabar yuborish funksiyasi
+function sendMessage() {
+    const input = document.getElementById('chatMessageInput');
+    const text = input.value.trim();
+
+    if (text) {
+        renderMessage(text, 'sent'); // O'zimizga ko'rsatamiz
+        
+        // Bu yerda backend API-ga xabar yuboriladi (Vercel API kabi)
+        // fetch('/api/messages', { method: 'POST', body: ... })
+
+        input.value = '';
+        input.style.height = 'auto';
+    }
+}
+
+// 4. Xabarni ekranda ko'rsatish yordamchi funksiyasi
+function renderMessage(text, type) {
+    const display = document.getElementById('messageDisplay');
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    const html = `
+        <div class="message ${type}">
+            <p>${text}</p>
+            <span class="message-time">${time}</span>
+        </div>
+    `;
+    display.insertAdjacentHTML('beforeend', html);
+    display.scrollTop = display.scrollHeight;
+}
+
+
+// 3. MASTERLARNI RENDER QILISH (Yangilangan versiya)
 function renderMasters(data = db.masters) {
     const grid = document.getElementById('mastersGrid');
     const featuredGrid = document.getElementById('featuredMasters');
@@ -46,7 +110,7 @@ function renderMasters(data = db.masters) {
         <div class="master-card" data-job="${m.job}">
             <div style="display:flex; justify-content:space-between; align-items:flex-start">
                 <div class="profile-pill" style="border:none; background:none; padding:0">
-                    <img src="${m.img}" alt="${m.name}" style="width:60px; height:60px; border-radius:14px">
+                    <img src="${m.img}" alt="${m.name}" style="width:60px; height:60px; border-radius:14px; object-fit:cover;">
                     <div style="margin-left:12px">
                         <h4 style="font-size:1.1rem">${m.name}</h4>
                         <span style="font-size:0.8rem; color:var(--text-muted)">${m.job}</span>
@@ -66,15 +130,132 @@ function renderMasters(data = db.masters) {
                 </div>
             </div>
 
-            <div style="display:flex; align-items:center; justify-content:space-between">
-                <div style="color:#f59e0b"><i class="fas fa-star"></i> ${m.rating}</div>
-                <button class="btn-pro" onclick="contactNow('${m.name}')" style="width:auto; padding:8px 20px">Band qilish</button>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px">
+                <div style="color:#f59e0b; flex-shrink:0;"><i class="fas fa-star"></i> ${m.rating}</div>
+                
+                <div style="display:flex; gap:8px; flex:1; justify-content:flex-end">
+                    <button class="icon-btn" onclick="startChatWithMaster(${m.id}, '${m.name}', '${m.img}')" 
+                            style="background: #f1f5f9; color: #475569; padding: 8px 12px; border-radius: 10px; border:none; cursor:pointer;"
+                            title="Xabar yozish">
+                        <i class="far fa-comment-dots"></i>
+                    </button>
+                    
+                    <button class="btn-pro" onclick="contactNow('${m.name}')" 
+                            style="width:auto; padding:8px 16px; font-size: 0.9rem;">
+                        Band qilish
+                    </button>
+                </div>
             </div>
         </div>
     `).join('');
 
     if(grid) grid.innerHTML = html;
-    if(featuredGrid) featuredGrid.innerHTML = html.slice(0, 2); // Dashboard uchun faqat 2ta
+    if(featuredGrid) featuredGrid.innerHTML = html.slice(0, 2);
+}
+
+// Qidiruv maydonini kuzatish
+document.querySelector('.chat-search input').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase().replace('@', ''); // '@' belgisini olib tashlaymiz
+    renderChatSearch(searchTerm);
+});
+
+function renderChatSearch(query) {
+    const chatList = document.getElementById('chatList');
+    
+    // Agar qidiruv bo'sh bo'lsa, ro'yxatni tozalaymiz yoki asosiy chatlarni qaytaramiz
+    if (!query) {
+        chatList.innerHTML = ''; 
+        return;
+    }
+
+    // Masters bazasidan izlash (db.masters ichidan)
+    const filteredMasters = db.masters.filter(m => 
+        m.name.toLowerCase().includes(query) || 
+        m.job.toLowerCase().includes(query)
+    );
+
+    // Natijalarni chiqarish
+    if (filteredMasters.length > 0) {
+        chatList.innerHTML = filteredMasters.map(m => `
+            <div class="chat-item animate-fade-in" onclick="startChatWithMaster(${m.id}, '${m.name}', '${m.img}')">
+                <div class="chat-item-avatar">
+                    <img src="${m.img}" alt="${m.name}">
+                    <span class="status-dot ${m.status}"></span>
+                </div>
+                <div class="chat-item-content">
+                    <div class="chat-item-header">
+                        <h4>${m.name}</h4>
+                    </div>
+                    <p>${m.job}</p>
+                </div>
+            </div>
+        `).join('');
+    } else {
+        chatList.innerHTML = `
+            <div style="text-align:center; padding:20px; color:var(--text-muted)">
+                <i class="fas fa-search" style="font-size:2rem; margin-bottom:10px; opacity:0.3"></i>
+                <p>"${query}" bo'yicha hech kim topilmadi</p>
+            </div>`;
+    }
+}
+
+function searchMessages(query) {
+    const chatList = document.getElementById('chatList');
+    const searchTerm = query.toLowerCase().trim().replace('@', '');
+
+    if (!searchTerm) {
+        chatList.innerHTML = ''; // Qidiruv bo'sh bo'lsa tozalash
+        return;
+    }
+
+    // Masters bazasidan qidirish
+    const filteredResults = db.masters.filter(m => 
+        m.name.toLowerCase().includes(searchTerm) || 
+        m.job.toLowerCase().includes(searchTerm)
+    );
+
+    if (filteredResults.length > 0) {
+        chatList.innerHTML = filteredResults.map(m => `
+            <div class="search-result-item animate-fade-in" onclick="startChatWithMaster(${m.id}, '${m.name}', '${m.img}')">
+                <img src="${m.img}" alt="${m.name}">
+                <div class="search-result-info">
+                    <h4>${m.name}</h4>
+                    <p>${m.job}</p>
+                </div>
+            </div>
+        `).join('');
+    } else {
+        chatList.innerHTML = `
+            <div style="text-align:center; padding:20px; color:#94a3b8;">
+                <p>Hech narsa topilmadi</p>
+            </div>`;
+    }
+}
+        // 4. Hech narsa topilmasa
+        chatList.innerHTML = `
+            <div style="text-align:center; padding:30px; opacity:0.5;">
+                <i class="fas fa-search" style="font-size:2rem; margin-bottom:10px;"></i>
+                <p>Natija topilmadi</p>
+            </div>`;
+    
+
+// Ustaga xabar yozish uchun yordamchi funksiya
+function startChatWithMaster(id, name, img) {
+    // 1. Muhokama (chat) section'ini ko'rsatish
+    showSection('muhokama');
+    
+    // 2. Chat oynasini o'sha usta bilan ochish
+    // Bu funksiya Pusher-ga ulanadi va UI-ni yangilaydi
+    if (typeof openConversation === 'function') {
+        openConversation(id, name, img);
+    }
+    
+    // 3. Avtomatik salom xabarini inputga yozib qo'yish
+    const input = document.getElementById('chatMessageInput');
+    if (input) {
+        input.value = `Assalomu alaykum, ${name}. `;
+        input.focus();
+    }
 }
 
 // 4. YANGILIKLARNI RENDER QILISH
@@ -1312,3 +1493,276 @@ document.addEventListener('DOMContentLoaded', () => {
     items[2].onclick = openPremium;
     items[3].onclick = openSupport;
 });
+
+// Xabar yuborishni yaxshilash
+function sendMessage() {
+    const input = document.getElementById('chatMessageInput');
+    const display = document.getElementById('messageDisplay');
+    const text = input.value.trim();
+
+    if (text) {
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        const messageHTML = `
+            <div class="message sent animate-slide-up">
+                <p>${text}</p>
+                <span style="font-size: 10px; opacity: 0.8; float: right; margin-top: 5px;">${time} <i class="fas fa-check-double"></i></span>
+            </div>
+        `;
+        
+        display.insertAdjacentHTML('beforeend', messageHTML);
+        input.value = '';
+        input.style.height = 'auto'; // Textarea o'lchamini qaytarish
+        display.scrollTop = display.scrollHeight;
+
+        // Vercel-dagi serveringizga yuborish qismi (Fetch API)
+        // syncToDatabase(text); 
+    }
+}
+
+// "Yozmoqda..." effektini simulyatsiya qilish (Faqat test uchun)
+document.getElementById('chatMessageInput').addEventListener('input', function() {
+    // Bu yerda serverga "typing" eventini yuborish mumkin
+    console.log("Foydalanuvchi yozmoqda...");
+});
+
+// Dropdown menyuni boshqarish
+function toggleChatDropdown() {
+    document.getElementById('chatDropdown').classList.toggle('show');
+}
+
+// Menyudan tashqariga bosilganda yopish
+window.onclick = function(event) {
+    if (!event.target.matches('.fa-ellipsis-v')) {
+        const dropdowns = document.getElementsByClassName("dropdown-menu");
+        for (let d of dropdowns) {
+            if (d.classList.contains('show')) d.classList.remove('show');
+        }
+    }
+}
+
+// Filtr funksiyasi
+function filterChats(type) {
+    // Tugmalar rangini yangilash
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if(btn.innerText.toLowerCase().includes(type === 'all' ? 'hammasi' : type === 'direct' ? 'lichka' : 'guruh')) {
+            btn.classList.add('active');
+        }
+    });
+
+    // Chatlarni filtrlash mantiqi (Simulyatsiya)
+    console.log(`${type} bo'yicha chatlar saralandi`);
+    // Bu yerda ChatApp.renderChatList(type) funksiyasini chaqirishingiz mumkin
+}
+
+// Xabar yuborishda chiroyli animatsiya
+function sendMessage() {
+    const input = document.getElementById('chatMessageInput');
+    const text = input.value.trim();
+    if (text) {
+        const area = document.getElementById('messageDisplay');
+        const msg = `
+            <div class="message sent animate-pop" style="align-self: flex-end; margin-bottom: 10px;">
+                ${text}
+                <div style="font-size: 9px; opacity: 0.6; text-align: right; margin-top: 4px;">19:13</div>
+            </div>`;
+        area.insertAdjacentHTML('beforeend', msg);
+        input.value = '';
+        area.scrollTop = area.scrollHeight;
+    }
+}
+
+// Chatni ochish (Lichkaga kirish)
+function openConversation(userId, name, img) {
+    // Mobil versiya uchun klass qo'shish
+    const container = document.querySelector('.messenger-container');
+    container.classList.add('is-active');
+
+    // UI elementlarini yangilash
+    document.getElementById('activeChatName').innerText = name;
+    document.getElementById('activeChatAvatar').src = img;
+    
+    // Chat oynasini ko'rsatish
+    document.getElementById('noChatSelected').style.display = 'none';
+    document.getElementById('activeChat').style.display = 'flex';
+
+    // Xabarlar maydonini pastga tushirish
+    const display = document.getElementById('messageDisplay');
+    display.scrollTop = display.scrollHeight;
+}
+
+// Orqaga qaytish (Telefonda)
+function closeConversation() {
+    const messenger = document.getElementById('messengerMain');
+    messenger.classList.remove('is-active');
+}
+
+// Textarea balandligini avtomatik sozlash
+function autoHeight(element) {
+    element.style.height = "auto";
+    element.style.height = (element.scrollHeight) + "px";
+}
+
+// Xabar yuborish
+function handleSendMessage() {
+    const input = document.getElementById('chatMessageInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const display = document.getElementById('messageDisplay');
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const msgHtml = `
+        <div class="message sent animate-slide-up" style="display: flex; flex-direction: column;">
+            <p>${text}</p>
+            <span style="font-size: 10px; opacity: 0.7; align-self: flex-end; margin-top: 4px;">${time}</span>
+        </div>
+    `;
+
+    display.insertAdjacentHTML('beforeend', msgHtml);
+    input.value = '';
+    input.style.height = "auto";
+    display.scrollTop = display.scrollHeight;
+}
+
+// Kontakt bosilganda
+function openConversation(id, name, img) {
+    // 1. Elementlarni topish
+    const activeChat = document.getElementById('activeChat');
+    const noChat = document.getElementById('noChatSelected');
+    const messenger = document.getElementById('messengerMain');
+
+    // 2. Klass va stillarni boshqarish
+    if (window.innerWidth <= 768) {
+        messenger.classList.add('active-chat-mobile');
+    }
+
+    noChat.style.display = 'none';
+    activeChat.style.display = 'flex'; // Blok emas, aynan FLEX
+
+    // 3. Ma'lumotlarni yozish
+    document.getElementById('activeChatName').innerText = name;
+    document.getElementById('activeChatAvatar').src = img;
+
+    // 4. Scrollni pastga tushirish
+    const display = document.getElementById('messageDisplay');
+    display.scrollTop = display.scrollHeight;
+}
+
+// Orqaga qaytish funksiyasi (Mobil uchun)
+function closeConversation() {
+    const container = document.getElementById('messengerMain');
+    container.classList.remove('active-chat-mobile');
+}
+
+// Xabarni yuborish (Twitter kabi tezkor)
+function handleSendMessage() {
+    const input = document.getElementById('chatMessageInput');
+    const text = input.value.trim();
+
+    if (text === "") return;
+
+    const display = document.getElementById('messageDisplay');
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const msgHtml = `
+        <div class="message sent animate-slide-in">
+            <p>${text}</p>
+            <span class="msg-time">${time}</span>
+        </div>
+    `;
+
+    display.insertAdjacentHTML('beforeend', msgHtml);
+    input.value = "";
+    input.style.height = 'auto';
+    display.scrollTop = display.scrollHeight;
+}
+
+// 2. Xabarni yuborish va ekranga chiqarish (Mantiqiy qism)
+function handleSendMessage() {
+    const input = document.getElementById('chatMessageInput');
+    const messageText = input.value.trim();
+    
+    if (messageText === "") return;
+
+    const display = document.getElementById('messageDisplay');
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const messageHtml = `
+        <div class="message sent animate-fade-in">
+            <p>${messageText}</p>
+            <span style="font-size: 0.7rem; opacity: 0.7; float: right; margin-top: 5px;">${time}</span>
+        </div>
+    `;
+
+    display.insertAdjacentHTML('beforeend', messageHtml);
+    input.value = ""; // Tozalash
+    input.style.height = 'auto'; // Bo'yini qaytarish
+    
+    // Har doim eng oxirgi xabarga tushish
+    display.scrollTop = display.scrollHeight;
+}
+
+// 3. Enter bosilganda yuborish (Shift+Enter bo'lmasa)
+document.getElementById('chatMessageInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSendMessage();
+    }
+});
+
+// Ustalarni qidiruv natijasida chiqarish (Professional mantiq)
+function searchMessages(query) {
+    const chatList = document.getElementById('chatList');
+    const searchTerm = query.toLowerCase().replace('@', '');
+
+    if (!searchTerm) {
+        chatList.innerHTML = '';
+        return;
+    }
+
+    // db.masters ichidan qidirish
+    const filtered = db.masters.filter(m => 
+        m.name.toLowerCase().includes(searchTerm) || 
+        m.job.toLowerCase().includes(searchTerm)
+    );
+
+    if (filtered.length > 0) {
+        chatList.innerHTML = filtered.map(m => `
+            <div class="chat-item" onclick="openPrivateChat(${m.id}, '${m.name}', '${m.img}')">
+                <img src="${m.img}" class="chat-avatar">
+                <div class="chat-info">
+                    <h4>${m.name}</h4>
+                    <p>${m.job}</p>
+                </div>
+            </div>
+        `).join('');
+    } else {
+        chatList.innerHTML = '<div class="no-result">Hech kim topilmadi</div>';
+    }
+}
+
+// Lichkaga kirish funksiyasi
+function openPrivateChat(id, name, img) {
+    // 1. Mobil versiya uchun "active" klassini qo'shish
+    const container = document.getElementById('messengerMain');
+    container.classList.add('is-active'); 
+
+    // 2. Chat oynasini yangilash
+    document.getElementById('noChatSelected').style.display = 'none';
+    document.getElementById('activeChat').style.display = 'flex';
+
+    // 3. Headerdagi ma'lumotlarni o'zgartirish
+    document.getElementById('activeChatName').innerText = name;
+    document.getElementById('activeChatAvatar').src = img;
+
+    // 4. Xabarlar oynasini tozalash (yoki tarixni yuklash)
+    document.getElementById('messageDisplay').innerHTML = `
+        <div class="chat-date">Bugun</div>
+        <div class="message received">
+            <p>Assalomu alaykum! Men ${name}. Sizga qanday yordam bera olaman?</p>
+            <span class="time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+        </div>
+    `;
+}

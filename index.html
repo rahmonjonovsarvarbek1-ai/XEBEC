@@ -44,6 +44,8 @@
       "description": "Professional ustalar va qurilish bozori uchun zamonaviy sanoat platformasi."
     }
     </script>
+
+    <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
 </head>
 <body>
 
@@ -177,41 +179,107 @@
 </section>
 
 <section id="muhokama" class="content-section" style="display: none;">
-    <div class="muhokama-wrapper animate-fade-in">
-        <div class="muhokama-header-advanced">
-            <div class="header-info">
-                <h3><i class="fab fa-twitter"></i> Muhokama</h3>
-                <span class="online-count"><i class="fas fa-circle"></i> 5 kishi onlayn</span>
-            </div>
-            <button class="refresh-btn" onclick="renderGlobalTalks()"><i class="fas fa-sync-alt"></i></button>
-        </div>
+    <div class="messenger-container" id="messengerMain">
         
-        <div class="tweet-composer">
-            <div class="composer-top">
-                <img id="composerUserAvatar" src="https://www.w3schools.com/howto/img_avatar.png" class="user-mini-avatar" alt="User">
-                <textarea id="globalPostInput" placeholder="Nimalar bo'lyapti?" oninput="autoResize(this)"></textarea>
+        <div class="chat-sidebar">
+            <div class="chat-header">
+                <div class="header-top">
+                    <h3>Xabarlar</h3>
+                    <button class="settings-btn" onclick="toggleSettings()">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+                
+                <div class="chat-filters">
+                    <button class="filter-btn active" onclick="filterChats('all', this)">Hammasi</button>
+                    <button class="filter-btn" onclick="filterChats('direct', this)">Lichka</button>
+                    <button class="filter-btn" onclick="filterChats('group', this)">Guruhlar</button>
+                </div>
+
+                <div class="chat-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Qidirish..." oninput="searchMessages(this.value)">
+                </div>
             </div>
             
-            <div id="imagePreviewContainer" class="preview-hidden"></div>
-
-            <div class="composer-actions">
-                <div class="media-tools">
-                    <label for="postImageInput" class="tool-icon">
-                        <i class="far fa-image"></i>
-                        <input type="file" id="postImageInput" hidden accept="image/*" onchange="handlePostImage(event)">
-                    </label>
-                    <button class="tool-icon"><i class="far fa-smile"></i></button>
-                    <button class="tool-icon"><i class="fas fa-hashtag"></i></button>
+            <div id="chatList" class="chat-list">
                 </div>
-                <button class="btn-post-main" onclick="addGlobalPost()">Post qilish</button>
-            </div>
         </div>
 
-        <div id="globalFeed" class="feed-list-advanced">
+        <div class="chat-main">
+            <div id="noChatSelected" class="empty-chat">
+                <div class="empty-content animate-fade-in">
+                    <div class="empty-icon"><i class="far fa-comments"></i></div>
+                    <h3>TORVEX Muloqot</h3>
+                    <p>Suhbatni boshlash uchun kontaktni tanlang</p>
+                </div>
             </div>
-    </div>
-</section>
 
+            <div id="activeChat" class="active-chat-container" style="display: none;">
+                <div class="active-chat-header">
+                    <div class="chat-user-meta">
+                        <button class="mobile-back-btn" onclick="closeConversation()">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <div class="avatar-wrapper">
+                            <img src="" id="activeChatAvatar" class="user-mini-avatar">
+                            <span class="online-badge"></span>
+                        </div>
+                        <div class="user-details">
+                            <h4 id="activeChatName">Foydalanuvchi</h4>
+                            <span id="activeChatStatus" class="status-text">onlayn</span>
+                        </div>
+                    </div>
+                    
+                    <div class="header-actions">
+                        <button class="action-btn"><i class="fas fa-phone"></i></button>
+                        <button class="action-btn" onclick="toggleChatDropdown()">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div id="chatDropdown" class="dropdown-menu">
+                            <div class="dropdown-item" onclick="viewProfile()"><i class="far fa-user"></i> Profil</div>
+                            <div class="dropdown-item" onclick="clearHistory()"><i class="far fa-trash-alt"></i> Tozalash</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="active-chat-header">
+    <div class="chat-user-meta">
+        <button class="mobile-back-btn" onclick="closeConversation()" style="display: none;">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <img src="" id="activeChatAvatar" class="user-mini-avatar">
+        <div class="user-details">
+            <h4 id="activeChatName">Ali Valiyev</h4>
+            <span class="status-text">onlayn</span>
+        </div>
+    </div>
+</div>
+
+                <div class="chat-main-x">
+    <div id="messageDisplay" class="message-area-x">
+        </div>
+
+    <div class="chat-input-area-x">
+        <div class="x-actions-bar">
+            <button class="x-icon-btn"><i class="far fa-image"></i></button>
+            <button class="x-icon-btn"><i class="far fa-face-smile"></i></button>
+            <button class="x-icon-btn"><i class="fas fa-list-ul"></i></button>
+        </div>
+        <div class="input-container-x">
+            <textarea 
+                id="chatMessageInput" 
+                placeholder="Yangi xabar yozing..." 
+                rows="1" 
+                oninput="autoHeight(this)"
+            ></textarea>
+            <button class="x-send-btn" onclick="handleSendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+</section>
 <section id="bozor" class="content-section">
     <div class="bozor-header">
         <div class="bozor-title">
@@ -809,71 +877,7 @@ function toggleSidebar() {
 <div id="drawerOverlay" class="drawer-overlay" onclick="toggleDrawer()"></div>
 
 
-<div id="adModal" class="modal-overlay">
-    <div class="modal-content animate-zoom-in">
-        <div class="modal-header">
-            <h3><i class="fas fa-plus-circle"></i> Yangi e'lon</h3>
-            <button class="close-modal" onclick="closeAdModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div class="upload-zone" onclick="document.getElementById('adImage').click()">
-                <i class="fas fa-camera"></i>
-                <span>Rasm yuklash</span>
-                <input type="file" id="adImage" hidden accept="image/*" onchange="previewAdImage(event)">
-                <img id="adPreview" src="" style="display:none; width:100%; border-radius:10px;">
-            </div>
-            
-            <input type="text" id="adTitle" placeholder="E'lon sarlavhasi (masalan: Santexnik xizmati)">
-            <textarea id="adDesc" placeholder="Batafsil ma'lumot..."></textarea>
-            <input type="number" id="adPrice" placeholder="Narxi (so'mda)">
-            
-            <button class="btn-submit-ad" onclick="submitNewAd()">E'lonni joylash</button>
-        </div>
-    </div>
-</div>
 
-<div class="modal-overlay" id="addAdModal">
-    <div class="modal-box">
-        <div class="modal-top">
-            <h3>Yangi e'lon berish</h3>
-            <button class="close-modal" onclick="closeModal('addAdModal')">&times;</button>
-        </div>
-        <div class="modal-content-padding">
-            <input type="text" placeholder="Xizmat turi (masalan: Elektrik)">
-            <textarea placeholder="Tavsif..."></textarea>
-            <input type="number" placeholder="Narxi (so'mda)">
-        </div>
-        <div class="modal-bottom">
-            <button class="publish-btn">E'lonni joylash</button>
-        </div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="walletModal">
-    <div class="modal-box balance-card">
-        <div class="modal-top">
-            <h3>Mening hisobim</h3>
-            <button class="close-modal" onclick="closeModal('walletModal')">&times;</button>
-        </div>
-        <div class="balance-view">
-            <h2 id="currentBalance">0.00 UZS</h2>
-            <button class="btn-top-up">Hisobni to'ldirish</button>
-        </div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="supportModal">
-    <div class="modal-box">
-        <div class="modal-top">
-            <h3>Qo'llab-quvvatlash</h3>
-            <button class="close-modal" onclick="closeModal('supportModal')">&times;</button>
-        </div>
-        <div class="support-links">
-            <a href="https://t.me/your_admin" class="support-btn telegram"><i class="fab fa-telegram"></i> Telegram orqali bog'lanish</a>
-            <p>Ish vaqti: 09:00 - 18:00</p>
-        </div>
-    </div>
-</div>
     <script src="script.js"></script>
 </body>
 </html>
