@@ -2454,3 +2454,14 @@ input:checked + .slider:before { transform: translateX(22px); }
         height: 100px;
     }
 }
+
+/* Sidebar logo uchun qo'shimcha CSS */
+.main-logo-svg {
+    transform: scale(0.85); /* Sidebar kadriga sig'ishi uchun */
+}
+
+/* Oldingi xabarimda bergan CSS stillarini (pulse, gradient) ishlatavering */
+.logo-icon {
+    /* ... avvalgi stillar ... */
+    background: transparent; /* SVG fonini shaffof qilish uchun */
+}
