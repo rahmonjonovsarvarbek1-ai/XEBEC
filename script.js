@@ -2,6 +2,8 @@
  * XEBIC - Professional Dashboard Logic
  * GitHub: @sizning_profilingiz
  */
+// script.js ning eng tepasiga qo'ying
+const contentWrapper = document.getElementById('tabContent');
 
 // 1. MA'LUMOTLAR BAZASI (Simulyatsiya)
 const db = {
@@ -17,30 +19,30 @@ const db = {
     ]
 };
 
-// 2. NAVIGATSIYA (Sections switching)
-function showSection(sectionId) {
-    // Barcha sectionlarni yashirish
-    document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active-section'));
-    // Barcha menyu tugmalaridan active klasini olib tashlash
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+// 3. Asosiy funksiyalar
+function showSection(id) {
+    if (!contentWrapper) return; // Xatolikni oldini olish
 
-    // Kerakli sectionni ko'rsatish
-    const target = document.getElementById(sectionId);
-    if (target) {
-        target.classList.add('active-section');
-        // Menyu tugmasini aktiv qilish
-        const navItem = document.getElementById(`li-${sectionId}`);
-        if (navItem) navItem.classList.add('active');
-    }
+    // Animatsiya mantiqi
+    contentWrapper.style.opacity = '0';
+    contentWrapper.style.transform = 'translateY(10px)';
 
-    // Har safar section almashganda tepaga skroll qilish
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+        // Bo'limni almashtirish kodini shu yerga yozing
+        contentWrapper.style.opacity = '1';
+        contentWrapper.style.transform = 'translateY(0)';
+    }, 200);
 }
 
-// 1. Pusherni sozlash (Fayl boshida yoki oxirida bir marta e'lon qilinadi)
-const pusher = new Pusher('SIZNING_APP_KEY', {
-    cluster: 'eu'
-});
+function renderMasters() {
+    console.log("Masterlar yuklanmoqda...");
+    // Masterlarni chiqarish mantiqi
+}
+
+// 2. Pusherni xavfsiz yuklash
+if (typeof Pusher !== 'undefined') {
+    const pusher = new Pusher('SIZNING_APP_KEY', { cluster: 'eu' });
+}
 
 // 2. Chatni ochish funksiyasi
 function openConversation(userId, name, img) {
@@ -101,57 +103,8 @@ function renderMessage(text, type) {
 }
 
 
-// 3. MASTERLARNI RENDER QILISH (Yangilangan versiya)
-function renderMasters(data = db.masters) {
-    const grid = document.getElementById('mastersGrid');
-    const featuredGrid = document.getElementById('featuredMasters');
-    
-    const html = data.map(m => `
-        <div class="master-card" data-job="${m.job}">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start">
-                <div class="profile-pill" style="border:none; background:none; padding:0">
-                    <img src="${m.img}" alt="${m.name}" style="width:60px; height:60px; border-radius:14px; object-fit:cover;">
-                    <div style="margin-left:12px">
-                        <h4 style="font-size:1.1rem">${m.name}</h4>
-                        <span style="font-size:0.8rem; color:var(--text-muted)">${m.job}</span>
-                    </div>
-                </div>
-                <span class="status-pill ${m.status}">${m.status}</span>
-            </div>
-            
-            <div style="margin:20px 0; display:flex; gap:15px">
-                <div style="text-align:center; flex:1; background:var(--bg-main); padding:10px; border-radius:10px">
-                    <small style="color:var(--text-muted)">Tajriba</small>
-                    <p><b>${m.experience} yil</b></p>
-                </div>
-                <div style="text-align:center; flex:1; background:var(--bg-main); padding:10px; border-radius:10px">
-                    <small style="color:var(--text-muted)">Narxi</small>
-                    <p><b>${m.price}</b></p>
-                </div>
-            </div>
 
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px">
-                <div style="color:#f59e0b; flex-shrink:0;"><i class="fas fa-star"></i> ${m.rating}</div>
-                
-                <div style="display:flex; gap:8px; flex:1; justify-content:flex-end">
-                    <button class="icon-btn" onclick="startChatWithMaster(${m.id}, '${m.name}', '${m.img}')" 
-                            style="background: #f1f5f9; color: #475569; padding: 8px 12px; border-radius: 10px; border:none; cursor:pointer;"
-                            title="Xabar yozish">
-                        <i class="far fa-comment-dots"></i>
-                    </button>
-                    
-                    <button class="btn-pro" onclick="contactNow('${m.name}')" 
-                            style="width:auto; padding:8px 16px; font-size: 0.9rem;">
-                        Band qilish
-                    </button>
-                </div>
-            </div>
-        </div>
-    `).join('');
 
-    if(grid) grid.innerHTML = html;
-    if(featuredGrid) featuredGrid.innerHTML = html.slice(0, 2);
-}
 
 // Qidiruv maydonini kuzatish
 document.querySelector('.chat-search input').addEventListener('input', function(e) {
@@ -214,22 +167,7 @@ function searchMessages(query) {
         m.job.toLowerCase().includes(searchTerm)
     );
 
-    if (filteredResults.length > 0) {
-        chatList.innerHTML = filteredResults.map(m => `
-            <div class="search-result-item animate-fade-in" onclick="startChatWithMaster(${m.id}, '${m.name}', '${m.img}')">
-                <img src="${m.img}" alt="${m.name}">
-                <div class="search-result-info">
-                    <h4>${m.name}</h4>
-                    <p>${m.job}</p>
-                </div>
-            </div>
-        `).join('');
-    } else {
-        chatList.innerHTML = `
-            <div style="text-align:center; padding:20px; color:#94a3b8;">
-                <p>Hech narsa topilmadi</p>
-            </div>`;
-    }
+    
 }
         // 4. Hech narsa topilmasa
         chatList.innerHTML = `
@@ -239,24 +177,7 @@ function searchMessages(query) {
             </div>`;
     
 
-// Ustaga xabar yozish uchun yordamchi funksiya
-function startChatWithMaster(id, name, img) {
-    // 1. Muhokama (chat) section'ini ko'rsatish
-    showSection('muhokama');
-    
-    // 2. Chat oynasini o'sha usta bilan ochish
-    // Bu funksiya Pusher-ga ulanadi va UI-ni yangilaydi
-    if (typeof openConversation === 'function') {
-        openConversation(id, name, img);
-    }
-    
-    // 3. Avtomatik salom xabarini inputga yozib qo'yish
-    const input = document.getElementById('chatMessageInput');
-    if (input) {
-        input.value = `Assalomu alaykum, ${name}. `;
-        input.focus();
-    }
-}
+
 
 // 4. YANGILIKLARNI RENDER QILISH
 function renderNews() {
@@ -324,14 +245,7 @@ function contactNow(name) {
     });
 }
 
-// Sahifa yuklanganda ishga tushirish
-document.addEventListener('DOMContentLoaded', () => {
-    renderMasters();
-    renderNews();
-    
-    // Toast xabarnoma (Professional ko'rinish uchun)
-    console.log("XEBIC Dashboard v1.0 yuklandi...");
-});
+
 
 function saveProfileData() {
     const name = document.getElementById('p-name').value;
@@ -448,74 +362,45 @@ function deletePost(postId) {
     }
 }
 
-// 4. Tablarni almashtirish
-function switchTab(element, tabName) {
-    document.querySelectorAll('.tab-item').forEach(btn => btn.classList.remove('active'));
-    element.classList.add('active');
+// 4. Tablarni almashtirish (Yagona va xavfsiz variant)
+window.switchTab = function(element, tabName) {
+    // 1. Aktiv klassni barcha tab-item tugmalaridan olib tashlash
+    const buttons = document.querySelectorAll('.tab-item');
+    buttons.forEach(btn => btn.classList.remove('active'));
     
-    const content = document.getElementById('tabContent');
-    if(tabName === 'reviews') {
-        content.innerHTML = '<div class="empty-state"><p>Hali sharhlar yoq</p></div>';
-    } else if(tabName === 'security') {
-        content.innerHTML = '<div class="info-card"><h4>Parolni o\'zgartirish</h4><button class="btn-primary-sm">O\'zgartirish</button></div>';
-    } else {
-        content.innerHTML = '<div class="empty-state"><i class="fas fa-box-open"></i><p>E\'lonlar mavjud emas</p></div>';
+    // 2. Bosilgan tugmaga aktiv klassni qo'shish
+    if (element) {
+        element.classList.add('active');
     }
-}
 
-function switchTab(element, tabName) {
-    // Tablarni aktiv qilish
-    document.querySelectorAll('.tab-item').forEach(btn => btn.classList.remove('active'));
-    element.classList.add('active');
-    
+    // 3. Kontent chiqadigan joyni topish
     const contentWrapper = document.getElementById('tabContent');
-    
-    // Animatsiya qo'shish
-    contentWrapper.style.opacity = '0';
-    contentWrapper.style.transform = 'translateY(10px)';
+    if (!contentWrapper) return; // Agar HTMLda tabContent bo'lmasa, xato bermaydi
 
+    // 4. Animatsiya uchun qisqa vaqtga yashirish (ixtiyoriy)
+    contentWrapper.style.opacity = '0.5';
+
+    // 5. Tab nomiga qarab kontentni yangilash
+    if (tabName === 'reviews') {
+        contentWrapper.innerHTML = '<div class="empty-state"><p>Hali sharhlar yo\'q</p></div>';
+    } else if (tabName === 'security') {
+        contentWrapper.innerHTML = `
+            <div class="info-card">
+                <h4>Parolni o'zgartirish</h4>
+                <p>Profilingiz xavfsizligini ta'minlash uchun parolni yangilab turing.</p>
+                <button class="btn-primary-sm">O'zgartirish</button>
+            </div>`;
+    } else {
+        contentWrapper.innerHTML = '<div class="empty-state"><i class="fas fa-box-open"></i><p>E\'lonlar mavjud emas</p></div>';
+    }
+
+    // Animatsiyani qaytarish
     setTimeout(() => {
-        let html = '';
-
-        if (tabName === 'ads') {
-            html = `
-                <div class="content-header fade-in">
-                    <h3>E'lonlarim</h3>
-                    <button class="btn-add-new"><i class="fas fa-plus-circle"></i> Yangi qo'shish</button>
-                </div>
-                <div class="empty-state-advanced fade-in">
-                    <div class="illustration-box"><i class="fas fa-folder-plus"></i></div>
-                    <h4>E'lonlar mavjud emas</h4>
-                    <p>Sizda hali birorta ham e'lon yo'q.</p>
-                </div>
-            `;
-        } else if (tabName === 'reviews') {
-            html = `
-                <div class="content-header fade-in"><h3>Mijozlar sharhlari</h3></div>
-                <div class="review-stats">
-                    <div class="stat-card"><h4>4.8</h4><p>O'rtacha reyting</p></div>
-                </div>
-                <div class="empty-state-advanced fade-in">
-                    <p>Hali sharhlar kelib tushmadi.</p>
-                </div>
-            `;
-        } else if (tabName === 'security') {
-            html = `
-                <div class="content-header fade-in"><h3>Xavfsizlik sozlamalari</h3></div>
-                <div class="info-card fade-in">
-                    <div class="security-row">
-                        <div><strong>Ikki bosqichli autentifikatsiya</strong><p>Hisobingizni himoya qiling</p></div>
-                        <button class="btn-primary-sm">Yoqish</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        contentWrapper.innerHTML = html;
         contentWrapper.style.opacity = '1';
-        contentWrapper.style.transform = 'translateY(0)';
-    }, 200);
-}
+    }, 100);
+};
+
+
 
 
 function animateCounters() {
@@ -622,30 +507,7 @@ const mastersData = [
     { id: 3, name: "Jasur Hamroyev", job: "Malyar", exp: "3 yil", rating: 4.5, price: "70k", img: "https://i.pravatar.cc/150?u=3" }
 ];
 
-function renderMasters(data) {
-    const grid = document.getElementById('mastersGrid');
-    document.getElementById('totalMasters').innerText = data.length;
-    
-    grid.innerHTML = data.map(master => `
-        <div class="master-card-premium animate-fade-in" data-job="${master.job}">
-            <div class="master-status"></div>
-            <div class="master-profile">
-                <img src="${master.img}" class="master-avatar" alt="${master.name}">
-                <div class="master-info">
-                    <h4>${master.name} <i class="fas fa-check-circle text-blue" style="font-size: 12px"></i></h4>
-                    <span class="master-job">${master.job}</span>
-                </div>
-            </div>
-            <div class="master-stats">
-                <div class="stat-box"><span>Tajriba</span><b>${master.exp}</b></div>
-                <div class="stat-box"><span>Reyting</span><b><i class="fas fa-star text-orange"></i> ${master.rating}</b></div>
-            </div>
-            <button class="btn-contact" onclick="contactMaster('${master.id}')">
-                <i class="fas fa-comment-alt"></i> Bog'lanish
-            </button>
-        </div>
-    `).join('');
-}
+
 
 // 1. Qidiruv funksiyasi
 function searchMasters() {
@@ -669,8 +531,7 @@ function filterByJob(job) {
     }
 }
 
-// Sahifa yuklanganda render qilish
-document.addEventListener('DOMContentLoaded', () => renderMasters(mastersData));
+
 
 
 // Modalni ochish/yopish
@@ -719,62 +580,7 @@ function handleAuth(event) {
 
 let cart = [];
 
-function addToCart(productId) {
-    const item = constructionProducts.find(p => p.id === productId);
-    cart.push(item);
-    
-    // Headerdagi savatcha belgisini yangilash
-    const cartCount = document.querySelector('.icon-circle span'); 
-    if(cartCount) {
-        cartCount.innerText = cart.length;
-        cartCount.style.background = "#ff4d4d"; // Yangi narsa qo'shilsa qizil bo'lsin
-    }
-    
-    console.log("Savatchada:", cart);
-}
 
-function toggleMenu() {
-    // Nuqta qo'yishni unutmang, bu klass ekanligini bildiradi
-    const navbar = document.querySelector('.side-nav'); 
-    
-    if (navbar) {
-        navbar.classList.toggle('active');
-        console.log("Menyu holati o'zgardi");
-    } else {
-        // Agar xato bo'lsa, konsolda ko'rinadi
-        console.error("Xato: .side-nav topilmadi!");
-    }
-}
-function showSection(sectionId) {
-    // 1. Barcha bo'limlarni yashirish
-    const sections = ['dash', 'ustalar', 'bozor', 'news', 'profil', 'sozlamalar'];
-    sections.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-    });
-
-    // 2. Tanlangan bo'limni ko'rsatish
-    const activeSection = document.getElementById(sectionId);
-    if (activeSection) {
-        activeSection.style.display = 'block';
-    }
-
-    // 3. Mobil sidebar ochiq bo'lsa, uni avtomat yopish
-    const sidebar = document.querySelector('.sidebar');
-    if (sidebar) sidebar.classList.remove('active');
-
-    // 4. Pastki navigatsiyada aktiv holatni yangilash (ixtiyoriy)
-    console.log("Hozirgi bo'lim: " + sectionId);
-}
-
-
-// SAHIFANI TEKSHIRISH
-window.addEventListener('load', () => {
-    const savedUser = localStorage.getItem('Xebec_Persistent_User');
-    if (savedUser) {
-        unlockProfile(JSON.parse(savedUser));
-    }
-});
 
 // LOGIN / SIGN IN FUNKSIYASI
 function initiateUserSession(event) {
@@ -794,22 +600,7 @@ function initiateUserSession(event) {
     unlockProfile(user);
 }
 
-// PROFILNI OCHISH
-function unlockProfile(user) {
-    document.getElementById('auth-gate').style.display = 'none';
-    document.getElementById('real-profile-content').style.display = 'block';
-    
-    // Foydalanuvchi ma'lumotlarini kiritish
-    document.getElementById('displayFullName').innerHTML = `${user.name} <i class="fas fa-check-circle verified"></i>`;
-    
-    // @USERNAME QISMI QO'SHILDI
-    if(user.username) {
-        document.getElementById('displayUsername').innerText = `@${user.username}`;
-    }
-    
-    document.getElementById('displayID').innerText = `#${user.id}`;
-    document.getElementById('displayJoinedDate').innerText = user.joinDate;
-}
+
 
 // HISOBNI O'CHIRISH (SIZ AYTGAN DELETE)
 function confirmAccountDeletion() {
@@ -849,8 +640,7 @@ function loadUserInfo() {
     }
 }
 
-// Sahifa yuklanganda ma'lumotlarni to'ldirish
-window.onload = loadUserInfo;
+
 
 // Tahrirlash rejimini yoqish/o'chirish
 function toggleEdit(field) {
@@ -867,6 +657,7 @@ function toggleEdit(field) {
     saveBtn.style.display = 'inline-block';
     inputElement.focus();
 }
+
 
 
 // Ma'lumotni saqlash
@@ -1088,25 +879,11 @@ function renderGlobalTalks() {
                 </div>
             </div>
         </div>
-    `;
+    `
     }).join('');
 }
 
-function showSection(sectionId) {
-    // Bo'limlarni ko'rsatish mantiqi...
-    document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
-    document.getElementById(sectionId).style.display = 'block';
 
-    // NAVIGATSIYADAGI AKTIVLIKNI YANGILASH
-    document.querySelectorAll('.nav-item-mobile').forEach(item => {
-        item.classList.remove('active');
-    });
-    
-    // Bosilgan elementga active klassini qo'shish
-    event.currentTarget.classList.add('active');
-
-    if(sectionId === 'muhokama') renderTalks();
-}
 
 let currentPostImage = null;
 
@@ -1131,171 +908,7 @@ function removePostImage() {
     document.getElementById('imagePreviewContainer').className = 'preview-hidden';
 }
 
-// Post qo'shish
-function addGlobalPost() {
-    const input = document.getElementById('globalPostInput');
-    if (!input.value.trim() && !currentPostImage) return;
 
-    const newPost = {
-        id: Date.now(),
-        user: "Admin User", // Bu yerga profil ma'lumotlarini ulasangiz bo'ladi
-        handle: "@admin",
-        text: input.value,
-        image: currentPostImage,
-        time: "Hozir",
-        likes: 0,
-        replies: 0
-    };
-
-    let posts = JSON.parse(localStorage.getItem('Xebec_Global_Feed')) || [];
-    posts.unshift(newPost);
-    localStorage.setItem('Xebec_Global_Feed', JSON.stringify(posts));
-
-    // Tozalash
-    input.value = '';
-    removePostImage();
-    renderGlobalTalks();
-}
-
-// Sahifa yuklanganda va bo'limga o'tganda postlarni ko'rsatish
-window.onload = function() {
-    // Agar foydalanuvchi profili mavjud bo'lsa, ma'lumotlarni yuklaymiz
-    renderGlobalTalks();
-};
-
-function addGlobalPost() {
-    const input = document.getElementById('globalPostInput');
-    if (!input.value.trim() && !currentPostImage) return;
-
-    // To'g'ri kalitdan rasmni olamiz
-    const savedAvatar = localStorage.getItem('user_avatar');
-
-    const newPost = {
-        id: Date.now(),
-        user: "Sarvarbek Rahmonjonov",
-        handle: "@sarvar",
-        avatar: savedAvatar, // null bo'lishi ham mumkin
-        text: input.value,
-        image: currentPostImage,
-        time: new Date().getHours() + ":" + new Date().getMinutes().toString().padStart(2, '0'),
-        likes: 0
-    };
-
-    let posts = JSON.parse(localStorage.getItem('Xebec_Global_Feed')) || [];
-    posts.unshift(newPost);
-    localStorage.setItem('Xebec_Global_Feed', JSON.stringify(posts));
-
-    input.value = '';
-    renderGlobalTalks();
-}
-
-function addGlobalPost() {
-    const input = document.getElementById('globalPostInput');
-    if (!input.value.trim() && !currentPostImage) return;
-
-    // Profil rasmini olish (agar src'da haqiqiy rasm bo'lsa)
-    const profileImg = document.querySelector('.profile-image-large');
-    const hasImage = profileImg && profileImg.src && !profileImg.src.includes('default-avatar'); 
-    const realAvatar = hasImage ? profileImg.src : null;
-
-    const newPost = {
-        id: Date.now(),
-        user: "Sarvarbek Rahmonjonov",
-        handle: "@sarvar",
-        avatar: realAvatar, // Rasm yo'q bo'lsa null bo'ladi
-        text: input.value,
-        image: currentPostImage,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        likes: 0
-    };
-
-    let posts = JSON.parse(localStorage.getItem('Xebec_Global_Feed')) || [];
-    posts.unshift(newPost);
-    localStorage.setItem('Xebec_Global_Feed', JSON.stringify(posts));
-
-    input.value = '';
-    removePostImage();
-    renderGlobalTalks();
-}
-
-
-function showSection(sectionId) {
-    // Barcha sectionlarni yashirish
-    document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
-    
-    // Tanlangan sectionni ko'rsatish
-    document.getElementById(sectionId).style.display = 'block';
-
-    // AGAR MUHOKAMA BO'LIMI BO'LSA - POSTLARNI YUKLASH
-    if(sectionId === 'muhokama') {
-        renderGlobalTalks();
-    }
-}
-
-function renderGlobalTalks() {
-    const feed = document.getElementById('globalFeed');
-    if (!feed) return; // Element topilmasa funksiyani to'xtatish
-
-    const posts = JSON.parse(localStorage.getItem('Xebec_Global_Feed')) || [];
-    
-    // Profil rasmini ikkala ehtimoliy kalit bo'yicha tekshiramiz
-    const currentAvatar = localStorage.getItem('user_avatar') || localStorage.getItem('userAvatar');
-
-    feed.innerHTML = posts.map(post => {
-        // Avatar mantiqi
-        let avatarHTML;
-        if (post.handle === "@sarvar" && currentAvatar) {
-            avatarHTML = `<img src="${currentAvatar}" class="user-mini-avatar">`;
-        } else if (post.avatar) {
-            avatarHTML = `<img src="${post.avatar}" class="user-mini-avatar">`;
-        } else {
-            avatarHTML = `<div class="user-initial-avatar">${post.user ? post.user[0] : 'U'}</div>`;
-        }
-
-        // Har bir post uchun HTML qaytarish
-        return `
-        <div class="feed-card animate-slide-up">
-            ${avatarHTML}
-            <div class="post-main">
-                <div class="post-header">
-                    <div class="header-info">
-                        <strong>${post.user || 'Foydalanuvchi'}</strong> <i class="fas fa-check-circle verified"></i>
-                        <span class="post-handle">${post.handle || '@user'} · ${post.time || 'Hozir'}</span>
-                    </div>
-                    <div class="post-options">
-                        <i class="fas fa-edit" onclick="editPost(${post.id})"></i>
-                        <i class="fas fa-trash" onclick="deletePost(${post.id})"></i>
-                    </div>
-                </div>
-                <div class="post-text">${post.text}</div>
-                
-                <div class="post-footer">
-                    <div class="action-unit" onclick="addComment(${post.id})">
-                        <i class="far fa-comment"></i> 
-                        <span>${post.comments ? post.comments.length : 0}</span>
-                    </div>
-                    
-                    <div class="action-unit ${post.isLiked ? 'active-like' : ''}" onclick="toggleLike(${post.id})">
-                        <i class="${post.isLiked ? 'fas' : 'far'} fa-heart"></i> 
-                        <span>${post.likes || 0}</span>
-                    </div>
-                    
-                    <div class="action-unit" onclick="sharePost(${post.id})">
-                        <i class="far fa-share-square"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        `;
-    }).join('');
-}
-
-// Profilni ko'rish funksiyasi
-function viewUserProfile(userId) {
-    console.log("Foydalanuvchi profili ochilmoqda:", userId);
-    showSection('profil'); // Hozircha o'zingizni profilingizga yo'naltiradi
-    // Keyinchalik bu yerga boshqa foydalanuvchi ma'lumotlarini yuklash kodini yozasiz
-}
 
 // Profil rasmini o'zgartirish uchun (masalan, fayl tanlanganda)
 function updateProfileImage(event) {
@@ -1315,28 +928,7 @@ function updateProfileImage(event) {
     }
 }
 
-// Postni o'chirish
-function deletePost(postId) {
-    if(confirm("Ushbu xabarni o'chirishni xohlaysizmi?")) {
-        let posts = JSON.parse(localStorage.getItem('Xebec_Global_Feed')) || [];
-        posts = posts.filter(p => p.id !== postId);
-        localStorage.setItem('Xebec_Global_Feed', JSON.stringify(posts));
-        renderGlobalTalks();
-    }
-}
 
-// Postni tahrirlash
-function editPost(postId) {
-    let posts = JSON.parse(localStorage.getItem('Xebec_Global_Feed')) || [];
-    const post = posts.find(p => p.id === postId);
-    const newText = prompt("Xabarni tahrirlang:", post.text);
-    
-    if(newText !== null) {
-        post.text = newText;
-        localStorage.setItem('Xebec_Global_Feed', JSON.stringify(posts));
-        renderGlobalTalks();
-    }
-}
 
 // 1. Sahifa yuklanganda barcha rasmlarni yangilash
 window.addEventListener('DOMContentLoaded', () => {
@@ -1356,20 +948,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// 2. Tahrirlash funksiyasini 1144-qatordan keyin qo'shing
-function editPost(postId) {
-    let posts = JSON.parse(localStorage.getItem('Xebec_Global_Feed')) || [];
-    const postIndex = posts.findIndex(p => p.id === postId);
-    
-    if (postIndex !== -1) {
-        const newText = prompt("Xabarni tahrirlang:", posts[postIndex].text);
-        if (newText !== null && newText.trim() !== "") {
-            posts[postIndex].text = newText;
-            localStorage.setItem('Xebec_Global_Feed', JSON.stringify(posts));
-            renderGlobalTalks(); // Ekranni yangilash
-        }
-    }
-}
+
 
 // 1. Like bosish funksiyasi
 function toggleLike(postId) {
@@ -1414,34 +993,7 @@ function sharePost(postId) {
     });
 }
 
-function toggleLike(postId) {
-    let posts = JSON.parse(localStorage.getItem('Xebec_Global_Feed')) || [];
-    const post = posts.find(p => p.id === postId);
-    if (post) {
-        post.isLiked = !post.isLiked;
-        post.likes = post.isLiked ? (post.likes || 0) + 1 : (post.likes || 1) - 1;
-        localStorage.setItem('Xebec_Global_Feed', JSON.stringify(posts));
-        renderGlobalTalks();
-    }
-}
 
-function sharePost(postId) {
-    alert("Post havolasi nusxalandi!");
-}
-
-function addComment(postId) {
-    const comment = prompt("Fikringizni yozing:");
-    if (comment) {
-        let posts = JSON.parse(localStorage.getItem('Xebec_Global_Feed')) || [];
-        const post = posts.find(p => p.id === postId);
-        if (post) {
-            if (!post.comments) post.comments = [];
-            post.comments.push(comment);
-            localStorage.setItem('Xebec_Global_Feed', JSON.stringify(posts));
-            renderGlobalTalks();
-        }
-    }
-}
 
 // Har bir harakatni boshqarish
 function openAddAdModal() {
@@ -1468,40 +1020,9 @@ function closeModal(id) {
     document.getElementById(id).classList.remove('active');
 }
 
-// HTML-dagi tugmalarga funksiyalarni bog'laymiz (agar hali bog'lanmagan bo'lsa)
-document.addEventListener('DOMContentLoaded', () => {
-    const items = document.querySelectorAll('.action-item');
-    items[0].onclick = openAddAdModal;
-    items[1].onclick = openWallet;
-    items[2].onclick = openPremium;
-    items[3].onclick = openSupport;
-});
 
-// Xabar yuborishni yaxshilash
-function sendMessage() {
-    const input = document.getElementById('chatMessageInput');
-    const display = document.getElementById('messageDisplay');
-    const text = input.value.trim();
 
-    if (text) {
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
-        const messageHTML = `
-            <div class="message sent animate-slide-up">
-                <p>${text}</p>
-                <span style="font-size: 10px; opacity: 0.8; float: right; margin-top: 5px;">${time} <i class="fas fa-check-double"></i></span>
-            </div>
-        `;
-        
-        display.insertAdjacentHTML('beforeend', messageHTML);
-        input.value = '';
-        input.style.height = 'auto'; // Textarea o'lchamini qaytarish
-        display.scrollTop = display.scrollHeight;
 
-        // Vercel-dagi serveringizga yuborish qismi (Fetch API)
-        // syncToDatabase(text); 
-    }
-}
 
 // "Yozmoqda..." effektini simulyatsiya qilish (Faqat test uchun)
 document.getElementById('chatMessageInput').addEventListener('input', function() {
@@ -1539,41 +1060,7 @@ function filterChats(type) {
     // Bu yerda ChatApp.renderChatList(type) funksiyasini chaqirishingiz mumkin
 }
 
-// Xabar yuborishda chiroyli animatsiya
-function sendMessage() {
-    const input = document.getElementById('chatMessageInput');
-    const text = input.value.trim();
-    if (text) {
-        const area = document.getElementById('messageDisplay');
-        const msg = `
-            <div class="message sent animate-pop" style="align-self: flex-end; margin-bottom: 10px;">
-                ${text}
-                <div style="font-size: 9px; opacity: 0.6; text-align: right; margin-top: 4px;">19:13</div>
-            </div>`;
-        area.insertAdjacentHTML('beforeend', msg);
-        input.value = '';
-        area.scrollTop = area.scrollHeight;
-    }
-}
 
-// Chatni ochish (Lichkaga kirish)
-function openConversation(userId, name, img) {
-    // Mobil versiya uchun klass qo'shish
-    const container = document.querySelector('.messenger-container');
-    container.classList.add('is-active');
-
-    // UI elementlarini yangilash
-    document.getElementById('activeChatName').innerText = name;
-    document.getElementById('activeChatAvatar').src = img;
-    
-    // Chat oynasini ko'rsatish
-    document.getElementById('noChatSelected').style.display = 'none';
-    document.getElementById('activeChat').style.display = 'flex';
-
-    // Xabarlar maydonini pastga tushirish
-    const display = document.getElementById('messageDisplay');
-    display.scrollTop = display.scrollHeight;
-}
 
 // Orqaga qaytish (Telefonda)
 function closeConversation() {
@@ -1609,83 +1096,7 @@ function handleSendMessage() {
     display.scrollTop = display.scrollHeight;
 }
 
-// Kontakt bosilganda
-function openConversation(id, name, img) {
-    // 1. Elementlarni topish
-    const activeChat = document.getElementById('activeChat');
-    const noChat = document.getElementById('noChatSelected');
-    const messenger = document.getElementById('messengerMain');
 
-    // 2. Klass va stillarni boshqarish
-    if (window.innerWidth <= 768) {
-        messenger.classList.add('active-chat-mobile');
-    }
-
-    noChat.style.display = 'none';
-    activeChat.style.display = 'flex'; // Blok emas, aynan FLEX
-
-    // 3. Ma'lumotlarni yozish
-    document.getElementById('activeChatName').innerText = name;
-    document.getElementById('activeChatAvatar').src = img;
-
-    // 4. Scrollni pastga tushirish
-    const display = document.getElementById('messageDisplay');
-    display.scrollTop = display.scrollHeight;
-}
-
-// Orqaga qaytish funksiyasi (Mobil uchun)
-function closeConversation() {
-    const container = document.getElementById('messengerMain');
-    container.classList.remove('active-chat-mobile');
-}
-
-// Xabarni yuborish (Twitter kabi tezkor)
-function handleSendMessage() {
-    const input = document.getElementById('chatMessageInput');
-    const text = input.value.trim();
-
-    if (text === "") return;
-
-    const display = document.getElementById('messageDisplay');
-    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    const msgHtml = `
-        <div class="message sent animate-slide-in">
-            <p>${text}</p>
-            <span class="msg-time">${time}</span>
-        </div>
-    `;
-
-    display.insertAdjacentHTML('beforeend', msgHtml);
-    input.value = "";
-    input.style.height = 'auto';
-    display.scrollTop = display.scrollHeight;
-}
-
-// 2. Xabarni yuborish va ekranga chiqarish (Mantiqiy qism)
-function handleSendMessage() {
-    const input = document.getElementById('chatMessageInput');
-    const messageText = input.value.trim();
-    
-    if (messageText === "") return;
-
-    const display = document.getElementById('messageDisplay');
-    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    const messageHtml = `
-        <div class="message sent animate-fade-in">
-            <p>${messageText}</p>
-            <span style="font-size: 0.7rem; opacity: 0.7; float: right; margin-top: 5px;">${time}</span>
-        </div>
-    `;
-
-    display.insertAdjacentHTML('beforeend', messageHtml);
-    input.value = ""; // Tozalash
-    input.style.height = 'auto'; // Bo'yini qaytarish
-    
-    // Har doim eng oxirgi xabarga tushish
-    display.scrollTop = display.scrollHeight;
-}
 
 // 3. Enter bosilganda yuborish (Shift+Enter bo'lmasa)
 document.getElementById('chatMessageInput').addEventListener('keydown', function(e) {
@@ -1695,36 +1106,7 @@ document.getElementById('chatMessageInput').addEventListener('keydown', function
     }
 });
 
-// Ustalarni qidiruv natijasida chiqarish (Professional mantiq)
-function searchMessages(query) {
-    const chatList = document.getElementById('chatList');
-    const searchTerm = query.toLowerCase().replace('@', '');
 
-    if (!searchTerm) {
-        chatList.innerHTML = '';
-        return;
-    }
-
-    // db.masters ichidan qidirish
-    const filtered = db.masters.filter(m => 
-        m.name.toLowerCase().includes(searchTerm) || 
-        m.job.toLowerCase().includes(searchTerm)
-    );
-
-    if (filtered.length > 0) {
-        chatList.innerHTML = filtered.map(m => `
-            <div class="chat-item" onclick="openPrivateChat(${m.id}, '${m.name}', '${m.img}')">
-                <img src="${m.img}" class="chat-avatar">
-                <div class="chat-info">
-                    <h4>${m.name}</h4>
-                    <p>${m.job}</p>
-                </div>
-            </div>
-        `).join('');
-    } else {
-        chatList.innerHTML = '<div class="no-result">Hech kim topilmadi</div>';
-    }
-}
 
 // Lichkaga kirish funksiyasi
 function openPrivateChat(id, name, img) {

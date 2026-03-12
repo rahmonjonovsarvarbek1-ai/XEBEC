@@ -385,7 +385,7 @@ body {
 }
 
 .master-card:hover {
-    transform: translateY(-5-px);
+    transform: translateY(-5px); /* Ortiqcha tireni olib tashlang */
 }
 
 /* --- FLOATING ACTION BUTTON --- */
@@ -1966,7 +1966,7 @@ input:checked + .slider:before { transform: translateX(22px); }
 .ad-actions {
     margin-top: 15px;
     display: flex;
-    justify-content:空间-between;
+    justify-content: space-between; /* '空间' o'rniga 'space' bo'lishi kerak */
     gap: 10px;
 }
 
@@ -2444,10 +2444,11 @@ input:checked + .slider:before { transform: translateX(22px); }
 
     /* 6. Profil sahifasidagi rasm va ma'lumotlarni telefon markaziga joylash */
     .profile-header {
-        flex-direction: column;
-        text-align: left;
-        align-items: left;
-    }
+    display: flex; /* Flexbox yoqilganligiga ishonch hosil qiling */
+    flex-direction: column;
+    text-align: left;
+    align-items: flex-start; /* 'left' o'rniga 'flex-start' ishlatiladi */
+}
 
     .profile-image-large {
         width: 100px;
