@@ -80,9 +80,9 @@
 </ul>
         
         <div class="sidebar-footer desktop-only">
-             <div class="nav-item" onclick="toggleAuthModal()">
-                <i class="far fa-user"></i> <span>Kirish</span>
-             </div>
+             <button onclick="window.toggleAuthModal(true)" class="auth-trigger-btn">
+             Kirish
+             </button>
         </div>
     </nav>
 </aside>
@@ -461,16 +461,25 @@ function toggleSidebar() {
 
 <div id="auth-modal" class="custom-modal">
     <div class="modal-content">
-        <span class="close-btn" onclick="closeModal('auth-modal')">&times;</span>
-        <h3><i class="far fa-user"></i> Tizimga kirish</h3>
-        <hr>
+       <button onclick="window.handleLogout()" class="logout-btn">
+        Tizimdan chiqish
+       </button>
+        
         <input type="email" id="modalEmail" placeholder="Emailingizni yozing" class="modal-input">
-        <button class="modal-submit-btn" onclick="initiateUserSession(event)">Kirish</button>
+        <button class="modal-submit-btn" onclick="window.initiateUserSession(event)">Email orqali kirish</button>
         
         <div style="margin: 15px 0; text-align: center; color: #888;">yoki</div>
 
-        <button onclick="loginWithGoogle()" class="google-auth-btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; background: white; border: 1px solid #ddd; padding: 10px; border-radius: 8px; cursor: pointer;">
+        <button onclick="window.loginWithGoogle()" class="google-auth-btn" style="width: 100%; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; background: white; border: 1px solid #ddd; padding: 10px; border-radius: 8px; cursor: pointer;">
             <i class="fab fa-google" style="color: #4285F4;"></i> Google orqali kirish
+        </button>
+
+        <button onclick="window.loginWithPhone()" class="phone-auth-btn" style="width: 100%; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; background: #34b7f1; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer;">
+            <i class="fas fa-phone"></i> Telefon orqali kirish
+        </button>
+
+        <button onclick="window.loginWithApple()" class="apple-auth-btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; background: black; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer;">
+            <i class="fab fa-apple"></i> Apple orqali kirish
         </button>
     </div>
 </div>

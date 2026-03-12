@@ -6,7 +6,7 @@
 
 "use strict";
 
-// 1. Firebase importlari (firebase-config.js dan)
+// 1. Firebase importlari
 import { 
     auth, 
     googleProvider, 
@@ -14,6 +14,110 @@ import {
     onAuthStateChanged 
 } from './firebase-config.js';
 
+// --- 2. AUTH & USER MANAGEMENT (Tizimga kirish va Profil) ---
+
+// 2.1 Google orqali kirish
+window.loginWithGoogle = async () => {
+    try {
+        const result = await signInWithPopup(auth, googleProvider);
+        console.log("Muvaffaqiyatli kirdi:", result.user.displayName);
+        if (typeof closeModal === 'function') closeModal('auth-modal');
+    } catch (error) {
+        console.error("Google Login xatosi:", error.message);
+        alert("Kirishda xatolik yuz berdi.");
+    }
+};
+
+// 2.2 Telefon orqali kirish (Siz so'ragan Phone auth uchun qolip)
+window.loginWithPhone = () => {
+    alert("Telefon orqali kirish xizmati tez kunda ishga tushadi!");
+    // Kelajakda Firebase RecaptchaVerifier va signInWithPhoneNumber shu yerga qo'shiladi
+};
+
+// 2.3 Apple orqali kirish
+window.loginWithApple = () => {
+    alert("Apple ID xizmati sozlanmoqda...");
+};
+
+// 2.3.1 Tizimdan chiqish funksiyasini global window obyektiga ulaymiz
+window.handleLogout = async () => {
+    try {
+        await auth.signOut(); // auth o'zgaruvchisi import qilingan bo'lishi shart
+        console.log("Tizimdan chiqildi");
+        window.location.reload(); 
+    } catch (error) {
+        console.error("Chiqishda xatolik:", error.message);
+        alert("Tizimdan chiqishda xatolik yuz berdi");
+    }
+};
+
+// Modalni ochish va yopish funksiyasini global qilish
+window.toggleAuthModal = (show = true) => {
+    const modal = document.getElementById('auth-modal');
+    if (modal) {
+        modal.style.display = show ? 'flex' : 'none';
+    }
+};
+
+// closeModal funksiyasini ham global qilib qo'yamiz (X tugmasi ishlashi uchun)
+window.closeModal = (id) => {
+    const modal = document.getElementById(id);
+    if (modal) modal.style.display = 'none';
+};
+
+// 2.4 Foydalanuvchi holatini kuzatish
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        AppState.user = user;
+        console.log("Sessiya faol:", user.email);
+        renderProfile(); // Profilni chizish
+    } else {
+        AppState.user = null;
+        console.log("Sessiya yopiq.");
+        resetProfileUI(); // Profilni bo'shatish
+    }
+});
+
+// 2.5 Profil bo'limini chizish
+function renderProfile() {
+    const profileContainer = document.getElementById('profil');
+    if (!profileContainer || !AppState.user) return;
+
+    profileContainer.innerHTML = `
+        <div class="profile-container" style="padding: 20px; animation: fadeIn 0.5s ease;">
+            <div class="profile-header" style="text-align: center; margin-bottom: 25px;">
+                <img src="${AppState.user.photoURL || 'assets/default-avatar.png'}" 
+                     style="width: 120px; height: 120px; border-radius: 50%; border: 4px solid #f1c40f; object-fit: cover; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                <h2 style="margin-top: 15px; color: var(--text-color);">${AppState.user.displayName || 'Foydalanuvchi'}</h2>
+                <span style="color: #2ecc71; font-size: 0.9em;"><i class="fas fa-check-circle"></i> Tasdiqlangan profil</span>
+            </div>
+
+            <div class="profile-info-grid" style="display: grid; gap: 15px; background: rgba(0,0,0,0.05); padding: 20px; border-radius: 12px; color: var(--text-color);">
+                <div class="info-item"><i class="far fa-envelope"></i> <strong>Email:</strong> ${AppState.user.email}</div>
+                <div class="info-item"><i class="fas fa-phone-alt"></i> <strong>Tel:</strong> ${AppState.user.phoneNumber || 'Kiritilmagan'}</div>
+                <div class="info-item"><i class="fas fa-id-badge"></i> <strong>ID:</strong> ${AppState.user.uid.substring(0, 10)}...</div>
+            </div>
+
+            <button onclick="window.handleLogout()" 
+                    style="width: 100%; margin-top: 25px; background: #e74c3c; color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <i class="fas fa-sign-out-alt"></i> Tizimdan chiqish
+            </button>
+        </div>
+    `;
+}
+
+function resetProfileUI() {
+    const profileContainer = document.getElementById('profil');
+    if (profileContainer) {
+        profileContainer.innerHTML = `
+            <div style="text-align: center; padding: 50px 20px;">
+                <i class="fas fa-user-lock" style="font-size: 3em; color: #ccc;"></i>
+                <p style="margin-top: 15px;">Profilni ko'rish uchun tizimga kiring</p>
+                <button onclick="toggleAuthModal()" class="login-prompt-btn">Kirish</button>
+            </div>
+        `;
+    }
+}
 // --- 2. DATA (MA'LUMOTLAR OMBORI) ---
 const TORVEX_DATA = {
     masters: [
@@ -48,16 +152,56 @@ document.addEventListener('DOMContentLoaded', () => {
     showSection('dash');
 });
 
-// --- 5. AUTH SYSTEM (GOOGLE LOGIN) ---
+
 window.loginWithGoogle = async function() {
     try {
         console.log("Google tizimiga ulanish...");
         const result = await signInWithPopup(auth, googleProvider);
         updateUIForUser(result.user);
+
+        // MODALNI YOPISH: Login muvaffaqiyatli bo'lsa modalni yopamiz
+        const authModal = document.getElementById('auth-modal');
+        if (authModal) {
+            authModal.style.display = 'none';
+        }
     } catch (error) {
         console.error("Auth xatosi:", error.message);
         alert("Xatolik: " + error.message);
     }
+};
+
+// 5.1 EMAIL ORQALI KIRISH (Siz so'ragan funksiya)
+window.initiateUserSession = async (event) => {
+    if (event) event.preventDefault();
+    
+    const emailInput = document.getElementById('modalEmail');
+    const email = emailInput ? emailInput.value : '';
+
+    if (!email) {
+        alert("Iltimos, email manzilingizni kiriting!");
+        return;
+    }
+
+    // Hozircha konsolga chiqaradi, Firebase ulanmagan bo'lsa xabar beradi
+    console.log("Email orqali kirish urinishi:", email);
+    alert("Email xizmati vaqtincha sozlanmoqda. Iltimos, hozircha Google orqali kiring.");
+};
+
+// 5.2 TELEFON RAQAMI ORQALI KIRISH
+window.loginWithPhone = async () => {
+    const phoneNumber = prompt("Telefon raqamingizni kiriting (masalan: +998901234567):");
+    
+    if (!phoneNumber) {
+        alert("Raqam kiritilmadi!");
+        return;
+    }
+
+    console.log("Telefon orqali kirish urinishi:", phoneNumber);
+    alert("Telefon orqali tasdiqlash xizmati vaqtincha sozlanmoqda. Iltimos, hozircha Google orqali kiring.");
+    
+    // Kelajakda Firebase sozlangach modalni yopish uchun:
+    // const authModal = document.getElementById('auth-modal');
+    // if (authModal) authModal.style.display = 'none';
 };
 
 function checkAuthState() {
