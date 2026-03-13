@@ -484,6 +484,38 @@ function toggleSidebar() {
     </div>
 </div>
 
+<div class="personal-details-section">
+    <h4 style="margin-top: 0; color: #333;">Qo'shimcha ma'lumotlar</h4>
+    
+    <div class="detail-item">
+        <label style="display:block; margin-bottom:5px; font-size:13px; color:#666;">Foydalanuvchi nomi</label>
+        <input type="text" id="dbUsername" placeholder="Username" class="profile-input">
+    </div>
+
+    <div class="detail-item">
+        <label style="display:block; margin-bottom:5px; font-size:13px; color:#666;">Tug'ilgan sana</label>
+        <input type="date" id="dbBirthdate" class="profile-input">
+    </div>
+
+    <div class="detail-item">
+        <label style="display:block; margin-bottom:5px; font-size:13px; color:#666;">Viloyat</label>
+        <select id="dbRegion" class="profile-input">
+            <option value="Andijon">Andijon</option>
+            </select>
+    </div>
+
+    <div class="detail-item">
+        <label style="display:block; margin-bottom:8px; font-size:13px; color:#666;">Siz kimsiz?</label>
+        <div class="role-grid">
+            <button class="role-option" id="role-employer" onclick="window.selectProfileRole('employer')">Ish beruvchi</button>
+            <button class="role-option" id="role-worker" onclick="window.selectProfileRole('worker')">Ishchi</button>
+            <button class="role-option" id="role-observer" onclick="window.selectProfileRole('observer')">Kuzatuvchi</button>
+        </div>
+    </div>
+
+    <button class="save-profile-btn" onclick="window.updatePersonalDetails()">Ma'lumotlarni saqlash</button>
+</div>
+
 
 <div id="settingsDrawer" class="settings-drawer">
     <div class="drawer-header">
@@ -509,14 +541,18 @@ function toggleSidebar() {
     </div>
 </div>
 
+
 <div id="drawerOverlay" class="drawer-overlay" onclick="toggleDrawer()"></div>
 
 
 
-   <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
+    <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
 
-<script type="module" src="firebase-config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-<script type="module" src="script.js"></script>
+   <script type="module" src="firebase-config.js"></script>
+   <script type="module" src="script.js"></script>
 </body>
-</html>
+</html>>

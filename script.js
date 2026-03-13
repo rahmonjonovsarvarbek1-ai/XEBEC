@@ -6,17 +6,28 @@
 
 "use strict";
 
-// 1. Firebase importlari
+// script.js
+
+// 1. O'zingizning config faylingizdan importlar
 import { 
     auth, 
     googleProvider, 
-    appleProvider, // Yangi qo'shildi
+    appleProvider, 
     signInWithPopup, 
     onAuthStateChanged,
-    RecaptchaVerifier, // Yangi qo'shildi
-    signInWithPhoneNumber // Yangi qo'shildi
+    RecaptchaVerifier, 
+    signInWithPhoneNumber 
 } from './firebase-config.js';
 
+// 2. Firestore funksiyalarini bevosita Firebase-dan import qilish (v10 uslubi)
+import { 
+    getFirestore, 
+    doc, 
+    setDoc, 
+    serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const db = getFirestore(); // Ma'lumotlar bazasi bilan ishlash uchun
 // --- 2. AUTH & USER MANAGEMENT (Tizimga kirish va Profil) ---
 
 // 2.1 Google orqali kirish
@@ -102,10 +113,35 @@ window.closeModal = (id) => {
 };
 
 // 2.4 Foydalanuvchi holatini kuzatish
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => { // async qo'shildi, chunki bazadan ma'lumot kutamiz
     if (user) {
         AppState.user = user;
         console.log("Sessiya faol:", user.email);
+        
+        // --- YANGI QISM: Bazadan ma'lumotlarni yuklash ---
+        try {
+            const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            
+            if (userDoc.exists()) {
+                const data = userDoc.data();
+                // Ma'lumotlarni inputlarga joylash
+                if (document.getElementById('dbUsername')) document.getElementById('dbUsername').value = data.username || '';
+                if (document.getElementById('dbRegion')) document.getElementById('dbRegion').value = data.region || '';
+                if (document.getElementById('dbBirthdate')) document.getElementById('dbBirthdate').value = data.birthdate || '';
+                
+                // Saqlangan rolni AppState-ga ham yozib qo'yamiz
+                if (data.role) {
+                    window.currentSelectedRole = data.role;
+                    // Agar selectProfileRole funksiyasi bo'lsa, tugmani ham aktiv qiladi
+                    if (window.selectProfileRole) window.selectProfileRole(data.role);
+                }
+            }
+        } catch (error) {
+            console.error("Ma'lumot yuklashda xato:", error);
+        }
+        // ------------------------------------------------
+        
         renderProfile(); // Profilni chizish
     } else {
         AppState.user = null;
@@ -392,3 +428,78 @@ function animateDashboard() {
         c.innerText = target.toLocaleString();
     });
 }
+
+// Tanlangan rolni saqlash uchun o'zgaruvchi
+window.currentSelectedRole = '';
+
+// Ro'lni tanlash mantiqi
+window.selectProfileRole = function(role) {
+    window.currentSelectedRole = role;
+    
+    // Hammasidan 'active'ni olib tashlash
+    document.querySelectorAll('.role-option').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Tanlanganiga 'active' qo'shish
+    const activeBtn = document.getElementById(`role-${role}`);
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+    }
+};
+
+// Global qilish (HTMLdagi onclick ko'rishi uchun)
+window.updatePersonalDetails = async function() {
+    const user = auth.currentUser;
+    if (!user) return alert("Avval tizimga kiring!");
+
+    const username = document.getElementById('dbUsername').value;
+    const region = document.getElementById('dbRegion').value;
+
+    try {
+        // v10 uslubida ma'lumot yozish
+        await setDoc(doc(db, 'users', user.uid), {
+            username: username.toLowerCase().trim(),
+            region: region,
+            lastUpdated: serverTimestamp()
+        }, { merge: true });
+
+        alert("Shaxsiy ma'lumotlar saqlandi!");
+    } catch (error) {
+        console.error("Xato:", error);
+    }
+};
+
+window.selectProfileRole = function(role) {
+    window.currentSelectedRole = role;
+    // UI o'zgarishlari...
+};
+
+// Ma'lumotlarni saqlash funksiyasi
+window.saveFinalProfile = async function() {
+    const user = auth.currentUser;
+    if (!user) return alert("Avval tizimga kiring!");
+
+    const username = document.getElementById('setupUsername').value;
+    const region = document.getElementById('setupRegion').value;
+    const birthdate = document.getElementById('setupBirthdate').value;
+
+    try {
+        // v10 uslubida Firestore-ga yozish
+        await setDoc(doc(db, 'users', user.uid), {
+            fullName: user.displayName,
+            email: user.email,
+            username: username.toLowerCase().trim(),
+            region: region,
+            birthdate: birthdate,
+            setupComplete: true,
+            lastUpdated: serverTimestamp()
+        }, { merge: true });
+
+        alert("Profil muvaffaqiyatli saqlandi!");
+        document.getElementById('setup-profile-modal').style.display = 'none';
+    } catch (error) {
+        console.error("Xatolik:", error);
+        alert("Xatolik yuz berdi!");
+    }
+};

@@ -3717,3 +3717,81 @@ input:checked + .slider:before { transform: translateX(22px); }
     background: white;
     border-top: 1px solid #eff3f4;
 }
+
+/* Asosiy konteynerni to'g'rilash */
+.personal-details-section {
+    margin: 20px auto;
+    padding: 20px 15px; /* Yon taraflardan masofa */
+    background: #ffffff;
+    border-radius: 15px;
+    border: 1px solid #f0f0f0;
+    width: 95%; /* Telefon ekranida chetga yopishib qolmasligi uchun */
+    max-width: 500px; /* Kompyuterda juda kengayib ketmasligi uchun */
+    box-sizing: border-box; /* Padding kenglikka qo'shilmasligi uchun juda muhim */
+}
+
+/* Input va Select elementlari */
+.profile-input {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    border: 1.5px solid #eee;
+    border-radius: 10px;
+    font-size: 16px; /* iPhone'larda avtomatik zoom bo'lmasligi uchun kamida 16px */
+    background: #fcfcfc;
+    box-sizing: border-box; 
+    display: block;
+    transition: border-color 0.3s;
+}
+
+.profile-input:focus {
+    border-color: #4285F4;
+    outline: none;
+    background: #fff;
+}
+
+/* Rol tanlash gridi - Telefonlar uchun */
+.role-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Tugmalarni bir qatorga teradi */
+    gap: 8px;
+    margin-top: 5px;
+    margin-bottom: 20px;
+}
+
+.role-option {
+    padding: 10px 2px;
+    border: 1px solid #eee;
+    background: #f9f9f9;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+/* Saqlash tugmasi */
+.save-profile-btn {
+    width: 100%;
+    padding: 15px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2);
+}
+
+/* Kichik ekranlar uchun qo'shimcha moslashuv */
+@media (max-width: 380px) {
+    .role-grid {
+        grid-template-columns: 1fr; /* Juda kichik telefonlarda tugmalarni ustma-ust qo'yadi */
+    }
+    .role-option {
+        padding: 12px;
+        font-size: 14px;
+    }
+}
