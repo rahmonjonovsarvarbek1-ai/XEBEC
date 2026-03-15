@@ -118,6 +118,18 @@ onAuthStateChanged(auth, async (user) => {
         AppState.user = null;
         resetProfileUI();
     }
+    // Foydalanuvchi ma'lumotlarini composer-ga yuklash
+window.updateComposerUserInfo = function(user) {
+    const avatarImg = document.getElementById('user-avatar-composer');
+    const composerTitle = document.querySelector('.composer-header span');
+    
+    if (user) {
+        // Foydalanuvchi rasmini va ismini qo'yamiz
+        avatarImg.src = user.photoURL || 'default-avatar.png';
+        composerTitle.innerText = user.displayName || "Yangi e'lon";
+    }
+};
+
 });
 
 
@@ -740,20 +752,16 @@ window.handleImageSelect = function(event) {
     const files = Array.from(event.target.files);
     const previewGrid = document.getElementById('imagePreviewGrid');
     
-    files.forEach((file, index) => {
+    files.forEach(file => {
         const reader = new FileReader();
         reader.onload = (e) => {
-            const container = document.createElement('div');
-            container.className = 'preview-container';
-            
-            container.innerHTML = `
+            const div = document.createElement('div');
+            div.className = 'preview-container';
+            div.innerHTML = `
                 <img src="${e.target.result}">
-                <button class="remove-img-btn" onclick="this.parentElement.remove()">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button class="remove-img-btn" onclick="this.parentElement.remove()">&times;</button>
             `;
-            
-            previewGrid.appendChild(container);
+            previewGrid.appendChild(div);
         }
         reader.readAsDataURL(file);
     });
@@ -828,7 +836,7 @@ window.openPremiumModal = function() {
 // --- 3. YORDAM FUNKSIYASI (Telegram botga yoki qo'llab-quvvatlashga) ---
 window.openSupport = function() {
     // Foydalanuvchini qo'llab-quvvatlash markaziga yoki Telegram-ga yo'naltirish
-    const supportLink = "https://t.me/sarvar_dev"; // O'zingizning havolangizni qo'ying
+    const supportLink = "https://t.me/rahmonjonov21"; // O'zingizning havolangizni qo'ying
     window.open(supportLink, '_blank');
 };
 
@@ -837,3 +845,138 @@ window.closeAddAdModal = function() {
     document.getElementById('addAdModal').style.display = 'none';
     document.body.style.overflow = 'auto';
 };
+
+// 1. E'lon berish oynasini ochish
+window.openAddAdModal = function() {
+    const composer = document.getElementById('inline-composer');
+    if (composer) {
+        composer.style.display = 'block';
+        composer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+};
+
+// 2. Oynani yopish
+window.closeComposer = function() {
+    document.getElementById('inline-composer').style.display = 'none';
+};
+
+// 3. Rasmlarni tanlash va ko'rsatish
+window.handleImageSelect = function(event) {
+    const previewGrid = document.getElementById('imagePreviewGrid');
+    const files = Array.from(event.target.files);
+    
+    files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const div = document.createElement('div');
+            div.className = 'preview-container';
+            div.style = "position: relative; flex: 0 0 120px;";
+            div.innerHTML = `
+                <img src="${e.target.result}" style="width:120px; height:120px; object-fit:cover; border-radius:12px; border:1px solid #eee;">
+                <button onclick="this.parentElement.remove()" style="position:absolute; top:5px; right:5px; background:rgba(255,0,0,0.7); color:white; border:none; border-radius:50%; width:22px; height:22px; cursor:pointer;">&times;</button>
+            `;
+            previewGrid.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
+};
+
+// 4. Ulashish (Postni tasmaga qo'shish)
+window.submitAd = function() {
+    const descField = document.getElementById('adDescription');
+    const previewGrid = document.getElementById('imagePreviewGrid');
+    const images = Array.from(previewGrid.querySelectorAll('img')).map(img => img.src);
+
+    if (!descField.value.trim() && images.length === 0) {
+        alert("Rasm va tavsif majburiy!");
+        return;
+    }
+
+    const feed = document.getElementById('posts-feed');
+    // Placeholder xatosini yo'qotish uchun UI-Avatars-dan foydalanamiz
+    const userAvatar = "https://ui-avatars.com/api/?name=Sarvarbek&background=random";
+
+    const postHTML = `
+        <div class="post-card" style="background:#fff; border:1px solid #f0f0f0; border-radius:18px; padding:15px; margin-bottom:15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <img src="${userAvatar}" style="width:35px; height:35px; border-radius:50%;">
+                <div>
+                    <strong style="display:block; font-size:14px;">Sarvarbek</strong>
+                    <span style="font-size:11px; color:#999;">Hozirgincha</span>
+                </div>
+            </div>
+            <p style="font-size:15px; color:#333; margin-bottom:10px;">${descField.value}</p>
+            <div style="display:flex; gap:10px; overflow-x:auto; padding-bottom:5px;">
+                ${images.map(src => `<img src="${src}" style="height:200px; border-radius:12px; border:1px solid #f9f9f9;">`).join('')}
+            </div>
+        </div>
+    `;
+
+    // Eng tepaga qo'shish
+    feed.insertAdjacentHTML('afterbegin', postHTML);
+
+    // Tozalash va yopish
+    descField.value = '';
+    previewGrid.innerHTML = '';
+    window.closeComposer();
+};
+
+// Postni pastdagi tasmaga chiroyli chiqarish funksiyasi
+function renderPostToFeed(post) {
+    const feed = document.getElementById('posts-feed');
+    if (!feed) return;
+
+    const postElement = document.createElement('div');
+    postElement.className = 'post-card';
+    postElement.innerHTML = `
+        <div class="post-header">
+            <img src="${post.userPhoto}" class="mini-avatar">
+            <div class="post-info">
+                <strong>${post.userName}</strong>
+                <span>Hozirgincha</span>
+            </div>
+        </div>
+        <div class="post-content">
+            <p>${post.text}</p>
+            <div class="post-images-grid">
+                ${post.images.map(img => `<img src="${img}" class="feed-img">`).join('')}
+            </div>
+        </div>
+        <div class="post-actions">
+            <button class="action-btn"><i class="far fa-heart"></i> ${post.likes}</button>
+            <button class="action-btn"><i class="far fa-comment"></i> 0</button>
+            <button class="action-btn"><i class="fas fa-share"></i></button>
+        </div>
+    `;
+    
+    // Yangi postni eng tepaga qo'shish
+    feed.prepend(postElement);
+}
+
+// Yangi postni tasmaga chiqarish funksiyasi
+function renderNewPost(post) {
+    const feed = document.getElementById('posts-feed');
+    const postHTML = `
+        <div class="post-card">
+            <div class="post-header">
+                <img src="${post.userPhoto}" class="mini-avatar">
+                <div class="post-info">
+                    <strong>${post.userName}</strong>
+                    <span>Hozirgincha</span>
+                </div>
+            </div>
+            <div class="post-content">
+                <p>${post.text}</p>
+                <div class="post-images">
+                    ${post.images.map(src => `<img src="${src}" class="feed-img">`).join('')}
+                </div>
+            </div>
+            <div class="post-actions">
+                <span><i class="far fa-heart"></i> ${post.likes}</span>
+                <span><i class="far fa-comment"></i> ${post.comments.length}</span>
+            </div>
+        </div>
+    `;
+    // Yangi postni eng tepaga qo'shish
+    feed.insertAdjacentHTML('afterbegin', postHTML);
+}

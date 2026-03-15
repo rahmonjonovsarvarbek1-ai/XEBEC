@@ -4146,3 +4146,275 @@ input[type="radio"]:checked + .role-card {
     object-fit: cover;
     border-radius: 12px;
 }
+
+
+.composer-card {
+    background: #fff;
+    margin: 15px;
+    border-radius: 20px;
+    border: 1px solid #f0f0f0;
+    padding: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    animation: fadeInDown 0.3s ease;
+}
+
+.composer-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.mini-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.ad-textarea-inline {
+    width: 100%;
+    border: none;
+    font-size: 16px;
+    outline: none;
+    resize: none;
+    min-height: 80px;
+    font-family: inherit;
+}
+
+.composer-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #f8f8f8;
+    padding-top: 10px;
+}
+
+.action-icon-btn {
+    color: #007bff;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 8px;
+    background: #f0f7ff;
+    border-radius: 50%;
+}
+
+.submit-inline-btn {
+    background: #000; /* Threads/Modern black style */
+    color: #fff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* Rasm Preview maydonini yaxshilash */
+.preview-grid-inline {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto; /* Rasmlar ko'p bo'lsa yonga skroll bo'ladi */
+    padding: 10px 0;
+    scrollbar-width: none; /* Skrollni yashirish */
+}
+
+.preview-grid-inline::-webkit-scrollbar {
+    display: none;
+}
+
+.preview-container {
+    position: relative;
+    flex: 0 0 150px; /* Har bir rasm eni 150px (kichikroq) */
+    aspect-ratio: 1 / 1;
+    border-radius: 15px;
+    overflow: hidden;
+    border: 1px solid #eee;
+}
+
+.preview-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* O'chirish tugmasi (X) */
+.remove-img-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 12px;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+}
+
+
+.post-card {
+    background: #fff;
+    margin: 15px;
+    padding: 15px;
+    border-radius: 15px;
+    border: 1px solid #f0f0f0;
+    animation: slideUp 0.4s ease;
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.post-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.post-info strong { font-size: 14px; }
+.post-info span { font-size: 11px; color: #888; }
+
+.post-content p {
+    font-size: 15px;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.feed-img {
+    width: 100%;
+    max-height: 350px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-top: 5px;
+}
+
+.post-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+    color: #555;
+    font-size: 14px;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+#posts-feed {
+    margin-top: 20px;
+    padding-bottom: 80px; /* Nav bar uchun joy */
+}
+
+.post-card {
+    background: #fff;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 16px;
+    margin-bottom: 5px;
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.post-info strong {
+    font-size: 14px;
+    color: #1a1a1a;
+}
+
+.post-info span {
+    font-size: 12px;
+    color: #8e8e8e;
+    display: block;
+}
+
+.post-content p {
+    font-size: 15px;
+    color: #262626;
+    line-height: 1.4;
+    margin-bottom: 10px;
+}
+
+.post-images-grid {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 5px;
+}
+
+.feed-img {
+    max-width: 85%;
+    max-height: 300px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 1px solid #efefef;
+}
+
+.post-actions {
+    display: flex;
+    gap: 20px;
+    margin-top: 12px;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.action-btn i {
+    font-size: 18px;
+    margin-right: 4px;
+}
+
+#dash {
+    padding: 10px;
+}
+
+.composer-card {
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid #ebebeb;
+    padding: 15px;
+    margin: 15px 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.preview-grid-inline {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    margin: 10px 0;
+}
+
+.ad-textarea-inline {
+    width: 100%;
+    border: none;
+    resize: none;
+    font-size: 16px;
+    outline: none;
+    min-height: 60px;
+    font-family: inherit;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
