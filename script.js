@@ -6,29 +6,32 @@
 
 "use strict";
 
-// 1. Eng tepada barcha importlarni bir marta e'lon qiling
+// FAQAT SHU YERDA IMPORT QILING
 import { 
     auth, 
-    db, // config faylingizda 'db' allaqachon getFirestore() bo'lishi kerak
+    db, 
     googleProvider, 
     appleProvider, 
     signInWithPopup, 
-    onAuthStateChanged, // firebase-config.js ichida 'export' borligini tekshiring
+    onAuthStateChanged,
     RecaptchaVerifier, 
     signInWithPhoneNumber 
 } from './firebase-config.js';
 
 
 import { 
- 
-    doc, 
-    getDoc, // Skrinshotdagi ReferenceError xatosini to'g'irlash uchun
-    setDoc, 
-    serverTimestamp 
+    collection, 
+    addDoc, 
+    serverTimestamp, 
+    query, 
+    orderBy, 
+    onSnapshot, 
+    deleteDoc, 
+    doc 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-
-
+// --- ENDI PASTROQDA HECH QANDAY 'IMPORT' BO'LMASIN ---
+// --- ENDI PASTROQDA HECH QANDAY 'IMPORT' BO'LMASIN ---
 
 
 window.loginWithPhone = async () => {
@@ -881,46 +884,84 @@ window.handleImageSelect = function(event) {
     });
 };
 
-// 4. Ulashish (Postni tasmaga qo'shish)
-window.submitAd = function() {
+// --- 1. POSTNI BAZAGA YUBORISH ---
+window.submitAd = async function() {
     const descField = document.getElementById('adDescription');
     const previewGrid = document.getElementById('imagePreviewGrid');
     const images = Array.from(previewGrid.querySelectorAll('img')).map(img => img.src);
+    const user = auth.currentUser;
 
-    if (!descField.value.trim() && images.length === 0) {
-        alert("Rasm va tavsif majburiy!");
-        return;
+    if (!user) return alert("Avval tizimga kiring!");
+    if (!descField.value.trim() && images.length === 0) return alert("Ma'lumot kiriting!");
+
+    try {
+        // Firestore-ga yozish
+        await addDoc(collection(db, "posts"), {
+            userId: user.uid,
+            userName: user.displayName || "Foydalanuvchi",
+            userPhoto: user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName || 'U'}`,
+            text: descField.value,
+            images: images,
+            createdAt: serverTimestamp() // Butun umrga saqlash uchun
+        });
+
+        // Formani tozalash
+        descField.value = '';
+        previewGrid.innerHTML = '';
+        window.closeComposer();
+    } catch (e) {
+        console.error("Xatolik yuz berdi: ", e);
     }
-
-    const feed = document.getElementById('posts-feed');
-    // Placeholder xatosini yo'qotish uchun UI-Avatars-dan foydalanamiz
-    const userAvatar = "https://ui-avatars.com/api/?name=Sarvarbek&background=random";
-
-    const postHTML = `
-        <div class="post-card" style="background:#fff; border:1px solid #f0f0f0; border-radius:18px; padding:15px; margin-bottom:15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                <img src="${userAvatar}" style="width:35px; height:35px; border-radius:50%;">
-                <div>
-                    <strong style="display:block; font-size:14px;">Sarvarbek</strong>
-                    <span style="font-size:11px; color:#999;">Hozirgincha</span>
-                </div>
-            </div>
-            <p style="font-size:15px; color:#333; margin-bottom:10px;">${descField.value}</p>
-            <div style="display:flex; gap:10px; overflow-x:auto; padding-bottom:5px;">
-                ${images.map(src => `<img src="${src}" style="height:200px; border-radius:12px; border:1px solid #f9f9f9;">`).join('')}
-            </div>
-        </div>
-    `;
-
-    // Eng tepaga qo'shish
-    feed.insertAdjacentHTML('afterbegin', postHTML);
-
-    // Tozalash va yopish
-    descField.value = '';
-    previewGrid.innerHTML = '';
-    window.closeComposer();
 };
 
+// --- 2. POSTLARNI HAMMA UCHUN CHIQARISH VA O'CHIRISH ---
+const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+
+onSnapshot(q, (snapshot) => {
+    const feed = document.getElementById('posts-feed');
+    if (!feed) return;
+    
+    feed.innerHTML = ''; // Dublikat bo'lmasligi uchun
+
+    snapshot.forEach((postDoc) => {
+        const post = postDoc.data();
+        const isOwner = auth.currentUser && auth.currentUser.uid === post.userId;
+
+        const postHTML = `
+            <div class="post-card" style="background:#fff; border:1px solid #f0f0f0; border-radius:18px; padding:15px; margin-bottom:15px; position:relative;">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                    <img src="${post.userPhoto}" style="width:35px; height:35px; border-radius:50%;">
+                    <div>
+                        <strong style="display:block; font-size:14px;">${post.userName}</strong>
+                        <span style="font-size:11px; color:#999;">${post.createdAt?.toDate().toLocaleString() || 'Yuklanmoqda...'}</span>
+                    </div>
+                    
+                    ${isOwner ? `
+                        <button onclick="window.deletePost('${postDoc.id}')" style="margin-left:auto; background:none; border:none; color:#ff4d4d; cursor:pointer;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    ` : ''}
+                </div>
+                <p style="font-size:15px; color:#333;">${post.text}</p>
+                <div style="display:flex; gap:10px; overflow-x:auto; margin-top:10px;">
+                    ${post.images.map(src => `<img src="${src}" style="height:200px; border-radius:12px;">`).join('')}
+                </div>
+            </div>
+        `;
+        feed.insertAdjacentHTML('beforeend', postHTML);
+    });
+});
+
+// --- 3. O'CHIRISH FUNKSIYASI ---
+window.deletePost = async function(postId) {
+    if (confirm("Haqiqatan ham bu e'lonni o'chirmoqchimisiz?")) {
+        try {
+            await deleteDoc(doc(db, "posts", postId));
+        } catch (e) {
+            alert("Xatolik: O'chirishga ruxsatingiz yo'q!");
+        }
+    }
+};
 // Postni pastdagi tasmaga chiroyli chiqarish funksiyasi
 function renderPostToFeed(post) {
     const feed = document.getElementById('posts-feed');
