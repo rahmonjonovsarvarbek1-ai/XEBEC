@@ -313,6 +313,7 @@
                 </div>
         </div>
     </section>
+
 </main>
 
     <div class="fab-main" onclick="openQuickAction()" title="Tezkor amal">
@@ -459,63 +460,73 @@ function toggleSidebar() {
     </div>
 </div>
 
-<div id="auth-modal" class="custom-modal">
-    <div class="modal-content">
-       <button onclick="window.handleLogout()" class="logout-btn">
-        Tizimdan chiqish
-       </button>
+<section id="profil" class="section" style="display: none;">
+    <div id="auth-logged-out" class="personal-details-section">
+        <h4 style="text-align: center;">Profilga kirish</h4>
+        <input type="email" id="modalEmail" placeholder="Emailingizni yozing" class="profile-input" style="margin-bottom: 10px;">
+        <button class="save-btn" onclick="window.initiateUserSession(event)" style="background: #007bff; margin-bottom: 15px;">Email orqali kirish</button>
         
-        <input type="email" id="modalEmail" placeholder="Emailingizni yozing" class="modal-input">
-        <button class="modal-submit-btn" onclick="window.initiateUserSession(event)">Email orqali kirish</button>
-        
-        <div style="margin: 15px 0; text-align: center; color: #888;">yoki</div>
+        <div style="margin: 10px 0; text-align: center; color: #888; font-size: 12px;">yoki</div>
 
-        <button onclick="window.loginWithGoogle()" class="google-auth-btn" style="width: 100%; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; background: white; border: 1px solid #ddd; padding: 10px; border-radius: 8px; cursor: pointer;">
+        <button onclick="window.loginWithGoogle()" class="google-auth-btn" style="width: 100%; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; background: white; border: 1px solid #ddd; padding: 10px; border-radius: 8px;">
             <i class="fab fa-google" style="color: #4285F4;"></i> Google orqali kirish
         </button>
 
-        <button onclick="window.loginWithPhone()" class="phone-auth-btn" style="width: 100%; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; background: #34b7f1; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer;">
+        <button onclick="window.loginWithPhone()" class="phone-auth-btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; background: #34b7f1; color: white; border: none; padding: 10px; border-radius: 8px;">
             <i class="fas fa-phone"></i> Telefon orqali kirish
         </button>
+    </div>
 
-        <button onclick="window.loginWithApple()" class="apple-auth-btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; background: black; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer;">
-            <i class="fab fa-apple"></i> Apple orqali kirish
+    <div id="auth-logged-in" class="personal-details-section" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h4 style="margin: 0; color: #333;">Qo'shimcha ma'lumotlar</h4>
+            <button onclick="window.handleLogout()" class="logout-btn" style="background: #dc3545; color: white; border: none; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
+                Chiqish
+            </button>
+        </div>
+
+        <div class="detail-item">
+            <label>Foydalanuvchi nomi</label>
+            <input type="text" id="dbUsername" placeholder="Username" class="profile-input">
+        </div>
+
+        <div class="detail-item">
+            <label>Telefon raqami</label>
+            <div style="display: flex; gap: 5px;">
+                <input type="text" value="+998" readonly style="width: 55px; text-align: center; background: #eee;">
+                <input type="tel" id="dbPhone" placeholder="901234567" maxlength="9" class="profile-input" style="flex: 1;">
+            </div>
+        </div>
+
+        <div class="detail-item">
+            <label>Tug'ilgan sana</label>
+            <input type="date" id="dbBirthdate" class="profile-input">
+        </div>
+
+        <div class="detail-item">
+            <label>Viloyat</label>
+            <select id="dbRegion" class="profile-input">
+                <option value="Andijon">Andijon</option>
+                <option value="Farg'ona">Farg'ona</option>
+                <option value="Namangan">Namangan</option>
+                <option value="Toshkent">Toshkent</option>
+            </select>
+        </div>
+
+        <div class="detail-item">
+            <label>Siz kimsiz?</label>
+            <div class="role-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px;">
+                <button class="role-option" id="role-employer" onclick="window.selectProfileRole('employer')">Ish beruvchi</button>
+                <button class="role-option" id="role-worker" onclick="window.selectProfileRole('worker')">Ishchi</button>
+                <button class="role-option" id="role-observer" onclick="window.selectProfileRole('observer')">Kuzatuvchi</button>
+            </div>
+        </div>
+
+        <button onclick="window.updatePersonalDetails()" class="save-btn" style="width:100%; padding:12px; background:#28a745; color:white; border:none; border-radius:8px; font-weight:bold; margin-top:15px;">
+            Ma'lumotlarni saqlash
         </button>
     </div>
-</div>
-
-<div class="personal-details-section">
-    <h4 style="margin-top: 0; color: #333;">Qo'shimcha ma'lumotlar</h4>
-    
-    <div class="detail-item">
-        <label style="display:block; margin-bottom:5px; font-size:13px; color:#666;">Foydalanuvchi nomi</label>
-        <input type="text" id="dbUsername" placeholder="Username" class="profile-input">
-    </div>
-
-    <div class="detail-item">
-        <label style="display:block; margin-bottom:5px; font-size:13px; color:#666;">Tug'ilgan sana</label>
-        <input type="date" id="dbBirthdate" class="profile-input">
-    </div>
-
-    <div class="detail-item">
-        <label style="display:block; margin-bottom:5px; font-size:13px; color:#666;">Viloyat</label>
-        <select id="dbRegion" class="profile-input">
-            <option value="Andijon">Andijon</option>
-            </select>
-    </div>
-
-    <div class="detail-item">
-        <label style="display:block; margin-bottom:8px; font-size:13px; color:#666;">Siz kimsiz?</label>
-        <div class="role-grid">
-            <button class="role-option" id="role-employer" onclick="window.selectProfileRole('employer')">Ish beruvchi</button>
-            <button class="role-option" id="role-worker" onclick="window.selectProfileRole('worker')">Ishchi</button>
-            <button class="role-option" id="role-observer" onclick="window.selectProfileRole('observer')">Kuzatuvchi</button>
-        </div>
-    </div>
-
-    <button class="save-profile-btn" onclick="window.updatePersonalDetails()">Ma'lumotlarni saqlash</button>
-</div>
-
+</section>
 
 <div id="settingsDrawer" class="settings-drawer">
     <div class="drawer-header">

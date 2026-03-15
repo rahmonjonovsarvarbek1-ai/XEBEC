@@ -6,29 +6,28 @@
 
 "use strict";
 
-// script.js
-
-// 1. O'zingizning config faylingizdan importlar
+// 1. Eng tepada barcha importlarni bir marta e'lon qiling
 import { 
     auth, 
+    db, // config faylingizda 'db' allaqachon getFirestore() bo'lishi kerak
     googleProvider, 
     appleProvider, 
     signInWithPopup, 
-    onAuthStateChanged,
+    onAuthStateChanged, // firebase-config.js ichida 'export' borligini tekshiring
     RecaptchaVerifier, 
     signInWithPhoneNumber 
 } from './firebase-config.js';
 
-// 2. Firestore funksiyalarini bevosita Firebase-dan import qilish (v10 uslubi)
+
 import { 
-    getFirestore, 
+ 
     doc, 
+    getDoc, // Skrinshotdagi ReferenceError xatosini to'g'irlash uchun
     setDoc, 
     serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-const db = getFirestore(); // Ma'lumotlar bazasi bilan ishlash uchun
-// --- 2. AUTH & USER MANAGEMENT (Tizimga kirish va Profil) ---
+
 
 // 2.1 Google orqali kirish
 window.loginWithGoogle = async () => {
@@ -111,44 +110,45 @@ window.closeModal = (id) => {
     const modal = document.getElementById(id);
     if (modal) modal.style.display = 'none';
 };
-
-// 2.4 Foydalanuvchi holatini kuzatish
-onAuthStateChanged(auth, async (user) => { // async qo'shildi, chunki bazadan ma'lumot kutamiz
+onAuthStateChanged(auth, async (user) => {
     if (user) {
         AppState.user = user;
         console.log("Sessiya faol:", user.email);
-        
-        // --- YANGI QISM: Bazadan ma'lumotlarni yuklash ---
+         
         try {
-            const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+            // Hujjatni olish
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             
             if (userDoc.exists()) {
                 const data = userDoc.data();
-                // Ma'lumotlarni inputlarga joylash
+                
+                // Inputlarni to'ldirish
                 if (document.getElementById('dbUsername')) document.getElementById('dbUsername').value = data.username || '';
-                if (document.getElementById('dbRegion')) document.getElementById('dbRegion').value = data.region || '';
+                if (document.getElementById('dbRegion')) document.getElementById('dbRegion').value = data.region || 'Andijon';
                 if (document.getElementById('dbBirthdate')) document.getElementById('dbBirthdate').value = data.birthdate || '';
                 
-                // Saqlangan rolni AppState-ga ham yozib qo'yamiz
+                // Telefon raqami (+998 ni olib tashlab ko'rsatish)
+                if (document.getElementById('dbPhone') && data.phone) {
+                    document.getElementById('dbPhone').value = data.phone.replace("+998", "");
+                }
+                
+                // Rolni aktivlashtirish
                 if (data.role) {
-                    window.currentSelectedRole = data.role;
-                    // Agar selectProfileRole funksiyasi bo'lsa, tugmani ham aktiv qiladi
+                       window.currentSelectedRole = data.role;
                     if (window.selectProfileRole) window.selectProfileRole(data.role);
                 }
             }
         } catch (error) {
             console.error("Ma'lumot yuklashda xato:", error);
-        }
-        // ------------------------------------------------
+         }
         
-        renderProfile(); // Profilni chizish
+        renderProfile();
     } else {
         AppState.user = null;
-        console.log("Sessiya yopiq.");
-        resetProfileUI(); // Profilni bo'shatish
+        resetProfileUI();
     }
 });
+
 
 // 2.5 Profil bo'limini chizish
 function renderProfile() {
@@ -309,20 +309,52 @@ window.showSection = function(sectionId) {
     const navItems = document.querySelectorAll('.nav-item, .nav-item-mobile');
 
     const activeSection = document.getElementById(sectionId);
-    if (!activeSection) return;
+    if (!activeSection) {
+        console.warn(`Section topilmadi: ${sectionId}`);
+        return;
+    }
 
+    // 1. Hamma bo'limlarni yashirish
     sections.forEach(s => s.style.display = 'none');
+    
+    // 2. Hamma menyu tugmalaridan 'active' klassini olib tashlash
     navItems.forEach(n => n.classList.remove('active'));
 
+    // 3. Tanlangan bo'limni ko'rsatish
     activeSection.style.display = 'block';
     
+    // 4. Menyu tugmasini aktiv qilish
+    // Agar sectionId 'profil' bo'lsa, pastki menyudagi profil tugmasini topadi
     const navId = sectionId === 'dash' ? 'li-dash' : `li-${sectionId}`;
     const activeNav = document.getElementById(navId);
     if (activeNav) activeNav.classList.add('active');
 
+    // 5. Sidebar bo'lsa yopish (mobil versiya uchun)
     const sidebar = document.querySelector('.sidebar');
     if (sidebar) sidebar.classList.remove('active');
+
+    // --- PROFIL UCHUN MAXSUS MANTIQ ---
+    if (sectionId === 'profil') {
+        checkProfileAuthView(); // Profil ochilganda login holatini tekshirish
+    }
+
+    window.scrollTo(0, 0);
 };
+
+// Profil ichidagi bloklarni almashish uchun yordamchi funksiya
+function checkProfileAuthView() {
+    const user = auth.currentUser; // Firebase auth'dan joriy foydalanuvchi
+    const loggedInDiv = document.getElementById('auth-logged-in');
+    const loggedOutDiv = document.getElementById('auth-logged-out');
+
+    if (user) {
+        if (loggedInDiv) loggedInDiv.style.display = 'block';
+        if (loggedOutDiv) loggedOutDiv.style.display = 'none';
+    } else {
+        if (loggedInDiv) loggedInDiv.style.display = 'none';
+        if (loggedOutDiv) loggedOutDiv.style.display = 'block';
+    }
+}
 
 // --- 7. MASTERS SYSTEM (USTALAR KATALOGI) ---
 window.renderMasters = function(filter = 'all') {
@@ -448,31 +480,36 @@ window.selectProfileRole = function(role) {
     }
 };
 
-// Global qilish (HTMLdagi onclick ko'rishi uchun)
+
+// Ma'lumotlarni saqlash va tahrirlash
 window.updatePersonalDetails = async function() {
     const user = auth.currentUser;
     if (!user) return alert("Avval tizimga kiring!");
 
     const username = document.getElementById('dbUsername').value;
     const region = document.getElementById('dbRegion').value;
+    const birthdate = document.getElementById('dbBirthdate').value;
+    const phone = document.getElementById('dbPhone').value;
+
+    if (!username || !window.currentSelectedRole) {
+        return alert("Iltimos, username va rolni tanlang!");
+    }
 
     try {
-        // v10 uslubida ma'lumot yozish
         await setDoc(doc(db, 'users', user.uid), {
             username: username.toLowerCase().trim(),
             region: region,
-            lastUpdated: serverTimestamp()
+            birthdate: birthdate,
+            phone: "+998" + phone.trim(),
+            role: window.currentSelectedRole,
+            updatedAt: serverTimestamp() // Oxirgi tahrirlash vaqti
         }, { merge: true });
 
-        alert("Shaxsiy ma'lumotlar saqlandi!");
+        alert("Ma'lumotlar saqlandi! Endi ular butun umrga eslab qolinadi.");
     } catch (error) {
-        console.error("Xato:", error);
+        console.error("Xatolik:", error);
+        alert("Saqlashda xato yuz berdi.");
     }
-};
-
-window.selectProfileRole = function(role) {
-    window.currentSelectedRole = role;
-    // UI o'zgarishlari...
 };
 
 // Ma'lumotlarni saqlash funksiyasi
