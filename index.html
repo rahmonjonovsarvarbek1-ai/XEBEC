@@ -80,9 +80,7 @@
 </ul>
         
         <div class="sidebar-footer desktop-only">
-             <button onclick="window.toggleAuthModal(true)" class="auth-trigger-btn">
-             Kirish
-             </button>
+             <button onclick="toggleAuthModal()">Kirish</button>
         </div>
     </nav>
 </aside>
@@ -123,20 +121,21 @@
         </div>
 
         <div class="quick-actions-grid">
-            <div class="action-item" onclick="openAddAdModal()">
-                <div class="action-icon blue"><i class="fas fa-plus"></i></div>
-                <span>E'lon berish</span>
-            </div>
-            <div class="action-item">
-                <div class="action-icon orange"><i class="fas fa-bolt"></i></div>
-                <span>Premium</span>
-            </div>
-            <div class="action-item">
-                <div class="action-icon purple"><i class="fas fa-headset"></i></div>
-                <span>Yordam</span>
-            </div>
-        </div>
+    <div class="action-item" onclick="openAddAdModal()">
+        <div class="action-icon blue"><i class="fas fa-plus"></i></div>
+        <span>E'lon berish</span>
+    </div>
 
+    <div class="action-item" onclick="openPremiumModal()">
+        <div class="action-icon orange"><i class="fas fa-bolt"></i></div>
+        <span>Premium</span>
+    </div>
+
+    <div class="action-item" onclick="openSupport()">
+        <div class="action-icon purple"><i class="fas fa-headset"></i></div>
+        <span>Yordam</span>
+    </div>
+</div>
         <div class="stats-grid">
             <div class="stat-card glass-effect">
                 <div class="stat-main">
@@ -460,70 +459,112 @@ function toggleSidebar() {
     </div>
 </div>
 
-<section id="profil" class="section" style="display: none;">
-    <div id="auth-logged-out" class="personal-details-section">
-        <h4 style="text-align: center;">Profilga kirish</h4>
-        <input type="email" id="modalEmail" placeholder="Emailingizni yozing" class="profile-input" style="margin-bottom: 10px;">
-        <button class="save-btn" onclick="window.initiateUserSession(event)" style="background: #007bff; margin-bottom: 15px;">Email orqali kirish</button>
+<section id="profil" class="section" style="display: none; max-width: 500px; margin: 0 auto; padding: 20px; font-family: 'Inter', sans-serif;">
+    
+    <div id="auth-logged-out" class="auth-card" style="background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center;">
+        <div style="margin-bottom: 20px;">
+            <i class="fas fa-user-circle" style="font-size: 50px; color: #007bff;"></i>
+            <h3 style="margin-top: 10px; color: #333;">Xush kelibsiz</h3>
+            <p style="color: #777; font-size: 14px;">Davom etish uchun tizimga kiring</p>
+        </div>
+
+        <input type="email" id="modalEmail" placeholder="Emailingizni yozing" class="modern-input">
         
-        <div style="margin: 10px 0; text-align: center; color: #888; font-size: 12px;">yoki</div>
-
-        <button onclick="window.loginWithGoogle()" class="google-auth-btn" style="width: 100%; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; background: white; border: 1px solid #ddd; padding: 10px; border-radius: 8px;">
-            <i class="fab fa-google" style="color: #4285F4;"></i> Google orqali kirish
+        <button class="primary-btn" onclick="window.initiateUserSession(event)">
+            <i class="fas fa-envelope"></i> Email orqali kirish
         </button>
+        
+        <div class="separator">yoki</div>
 
-        <button onclick="window.loginWithPhone()" class="phone-auth-btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; background: #34b7f1; color: white; border: none; padding: 10px; border-radius: 8px;">
-            <i class="fas fa-phone"></i> Telefon orqali kirish
-        </button>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button onclick="window.loginWithGoogle()" class="social-btn google">
+                <i class="fab fa-google"></i> Google
+            </button>
+            <button onclick="window.loginWithPhone()" class="social-btn phone">
+                <i class="fas fa-phone"></i> Telefon
+            </button>
+        </div>
     </div>
 
-    <div id="auth-logged-in" class="personal-details-section" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h4 style="margin: 0; color: #333;">Qo'shimcha ma'lumotlar</h4>
-            <button onclick="window.handleLogout()" class="logout-btn" style="background: #dc3545; color: white; border: none; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
-                Chiqish
+    <div id="auth-logged-in" class="profile-card" style="display: none; background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+        
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+            <div>
+                <h3 style="margin: 0; color: #333;">Shaxsiy kabinet</h3>
+                <p style="margin: 5px 0 0; font-size: 12px; color: #28a745;"><i class="fas fa-check-circle"></i> Tizimga kirilgan</p>
+            </div>
+            <button onclick="window.handleLogout()" class="logout-btn-minimal">
+                <i class="fas fa-sign-out-alt"></i>
             </button>
         </div>
 
-        <div class="detail-item">
-            <label>Foydalanuvchi nomi</label>
-            <input type="text" id="dbUsername" placeholder="Username" class="profile-input">
+        <div style="text-align: center; margin-bottom: 25px; position: relative;">
+            <div style="width: 100px; height: 100px; border-radius: 50%; background: #f0f2f5; margin: 0 auto; display: flex; align-items: center; justify-content: center; border: 3px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); overflow: hidden;">
+                <img id="userAvatar" src="https://via.placeholder.com/100" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <label for="avatarInput" style="position: absolute; bottom: 0; right: 38%; background: #007bff; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid #fff;">
+                <i class="fas fa-camera" style="font-size: 12px;"></i>
+            </label>
+            <input type="file" id="avatarInput" hidden accept="image/*" onchange="window.previewImage(event)">
         </div>
 
-        <div class="detail-item">
-            <label>Telefon raqami</label>
-            <div style="display: flex; gap: 5px;">
-                <input type="text" value="+998" readonly style="width: 55px; text-align: center; background: #eee;">
-                <input type="tel" id="dbPhone" placeholder="901234567" maxlength="9" class="profile-input" style="flex: 1;">
+        <div class="detail-grid" style="display: grid; gap: 15px;">
+            <div class="input-group">
+                <label><i class="fas fa-at"></i> Foydalanuvchi nomi</label>
+                <input type="text" id="dbUsername" placeholder="Masalan: sarvar_dev" class="modern-input">
+            </div>
+
+            <div class="input-group">
+                <label><i class="fas fa-phone-alt"></i> Telefon raqami</label>
+                <div style="display: flex; gap: 8px;">
+                    <span style="padding: 12px; background: #f8f9fa; border-radius: 10px; border: 1px solid #ddd; font-weight: bold; color: #555;">+998</span>
+                    <input type="tel" id="dbPhone" placeholder="901234567" maxlength="9" class="modern-input" style="flex: 1;">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="input-group">
+                    <label><i class="fas fa-calendar-alt"></i> Tug'ilgan sana</label>
+                    <input type="date" id="dbBirthdate" class="modern-input">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-map-marker-alt"></i> Viloyat</label>
+                    <select id="dbRegion" class="modern-input">
+                        <option value="Toshkent">Toshkent</option>
+                        <option value="Andijon">Andijon</option>
+                        <option value="Farg'ona">Farg'ona</option>
+                        <option value="Namangan">Namangan</option>
+                        <option value="Samarqand">Samarqand</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Sizning rolingiz</label>
+                <div class="role-selector">
+                    <input type="radio" name="profileRole" id="role-employer" value="employer" hidden>
+                    <label for="role-employer" class="role-card">
+                        <i class="fas fa-briefcase"></i>
+                        <span>Ish beruvchi</span>
+                    </label>
+
+                    <input type="radio" name="profileRole" id="role-worker" value="worker" hidden>
+                    <label for="role-worker" class="role-card">
+                        <i class="fas fa-tools"></i>
+                        <span>Ishchi</span>
+                    </label>
+
+                    <input type="radio" name="profileRole" id="role-observer" value="observer" hidden>
+                    <label for="role-observer" class="role-card">
+                        <i class="fas fa-eye"></i>
+                        <span>Kuzatuvchi</span>
+                    </label>
+                </div>
             </div>
         </div>
 
-        <div class="detail-item">
-            <label>Tug'ilgan sana</label>
-            <input type="date" id="dbBirthdate" class="profile-input">
-        </div>
-
-        <div class="detail-item">
-            <label>Viloyat</label>
-            <select id="dbRegion" class="profile-input">
-                <option value="Andijon">Andijon</option>
-                <option value="Farg'ona">Farg'ona</option>
-                <option value="Namangan">Namangan</option>
-                <option value="Toshkent">Toshkent</option>
-            </select>
-        </div>
-
-        <div class="detail-item">
-            <label>Siz kimsiz?</label>
-            <div class="role-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px;">
-                <button class="role-option" id="role-employer" onclick="window.selectProfileRole('employer')">Ish beruvchi</button>
-                <button class="role-option" id="role-worker" onclick="window.selectProfileRole('worker')">Ishchi</button>
-                <button class="role-option" id="role-observer" onclick="window.selectProfileRole('observer')">Kuzatuvchi</button>
-            </div>
-        </div>
-
-        <button onclick="window.updatePersonalDetails()" class="save-btn" style="width:100%; padding:12px; background:#28a745; color:white; border:none; border-radius:8px; font-weight:bold; margin-top:15px;">
-            Ma'lumotlarni saqlash
+        <button onclick="window.updatePersonalDetails()" class="save-btn-modern">
+            <i class="fas fa-save"></i> Ma'lumotlarni saqlash
         </button>
     </div>
 </section>
@@ -555,7 +596,25 @@ function toggleSidebar() {
 
 <div id="drawerOverlay" class="drawer-overlay" onclick="toggleDrawer()"></div>
 
-
+<div id="addAdModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>Yangi e'lon</h4>
+            <button onclick="closeAddAdModal()" class="close-modal-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="image-upload-container">
+                <input type="file" id="adImages" multiple accept="image/*" onchange="handleImageSelect(event)" hidden>
+                <label for="adImages" class="upload-label">
+                    <i class="fas fa-images"></i> Rasmlar tanlash
+                </label>
+                <div id="imagePreviewGrid" class="preview-grid"></div>
+            </div>
+            <textarea id="adDescription" class="ad-textarea" placeholder="Nima sotmoqchisiz yoki qanday xizmat ko'rsatasiz?"></textarea>
+            <button class="primary-btn" onclick="submitAd()">Joylashtirish</button>
+        </div>
+    </div>
+</div>
 
     <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
 
